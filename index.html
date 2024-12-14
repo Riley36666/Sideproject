@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login and Register</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Raleway', sans-serif;
+    }
+
+    /* Login/Register Form Styling */
+    .form-container {
+      display: block;
+      margin: 10px auto;
+      max-width: 400px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .login__field,
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+      margin: 10px 0;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #6a79f7;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #5562d6;
+    }
+
+    .switch-button {
+      margin: 10px auto;
+      display: block;
+      background-color: #ccc;
+    }
+
+    p {
+      margin: 10px 0;
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-container">
+    <!-- Login Form -->
+    <div id="login-section">
+      <h1 class="form-header">Login</h1>
+      <form id="login-form">
+        <div class="login__field">
+          <input type="text" id="login-username" class="login__input" placeholder="Username" required />
+        </div>
+        <div class="login__field">
+          <input type="password" id="login-password" class="login__input" placeholder="Password" required />
+        </div>
+        <button type="submit">Login</button>
+        <p id="login-message"></p>
+      </form>
+      <button class="switch-button" onclick="showRegister()">Go to Register</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-section" style="display: none;">
+      <h1 class="form-header">Register</h1>
+      <form id="register-form">
+        <div class="login__field">
+          <input type="text" id="register-username" class="login__input" placeholder="Username" required />
+        </div>
+        <div class="login__field">
+          <input type="password" id="register-password" class="login__input" placeholder="Password" required />
+        </div>
+        <div class="login__field">
+          <input type="email" id="register-email" class="login__input" placeholder="Email" required />
+        </div>
+        <button type="submit">Register</button>
+        <p id="register-message"></p>
+      </form>
+      <button class="switch-button" onclick="showLogin()">Go to Login</button>
+    </div>
+  </div>
+
+  <script>
+    // Toggle between Login and Register forms
+    function showLogin() {
+      document.getElementById('login-section').style.display = 'block';
+      document.getElementById('register-section').style.display = 'none';
+    }
+
+    function showRegister() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('register-section').style.display = 'block';
+    }
+
+    // Handle Login
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const response = await fetch('http://localhost:8080/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+        const loginMessage = document.getElementById('login-message');
+
+        if (response.ok && data.token) {
+          localStorage.setItem('token', data.token);
+          alert('Logged in successfully!');
+          window.location.href = "/dashboard.html";
+        } else {
+          loginMessage.textContent = data.message || 'Login failed';
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+      }
+    });
+
+    // Handle Register
+    document.getElementById('register-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+      const email = document.getElementById('register-email').value;
+
+      try {
+        const response = await fetch('http://localhost:8080/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, email }),
+        });
+
+        const data = await response.json();
+        const registerMessage = document.getElementById('register-message');
+
+        if (response.ok) {
+          alert('Registered successfully!');
+          showLogin(); // Switch to login after successful registration
+        } else {
+          registerMessage.textContent = data.message || 'Registration failed';
+        }
+      } catch (error) {
+        console.error('Error during registration:', error);
+      }
+    });
+  </script>
+</body>
+
+</html>

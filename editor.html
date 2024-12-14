@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor</title>
+</head>
+<body>
+  <h1>Editor</h1>
+  <textarea id="editor" rows="20" cols="100"></textarea>
+  <button onclick="saveChanges()">Save Changes</button>
+
+  <script>
+    let pageId;
+
+    async function initializeEditor() {
+      const urlParams = new URLSearchParams(window.location.search);
+      pageId = urlParams.get('id');
+      if (!pageId) {
+        alert('No page ID found');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:8080/get-page/${pageId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('editor').value = data.content || '';
+        } else {
+          alert('Failed to load page');
+        }
+      } catch (error) {
+        console.error('Error loading page content:', error);
+      }
+    }
+
+    async function saveChanges() {
+      const token = localStorage.getItem('token');
+      const content = document.getElementById('editor').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/update-page/${pageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content }),
+        });
+
+        if (response.ok) {
+          alert('Changes saved!');
+        } else {
+          alert('Failed to save changes');
+        }
+      } catch (error) {
+        console.error('Error saving changes:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeEditor);
+  </script>
+</body>
+</html>

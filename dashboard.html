@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Raleway', sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #f4f7fb;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #2e3a59;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar button.logout-btn {
+      background-color: #f44336;
+    }
+
+    .sidebar button:hover {
+      background-color: #388e3c;
+    }
+
+    .sidebar button.logout-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+
+    .page-card {
+      background-color: #fff;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .page-card button {
+      margin: 5px 0;
+      cursor: pointer;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px;
+      transition: background-color 0.3s;
+    }
+
+    .page-card button.edit {
+      background-color: #ffa500;
+    }
+
+    .page-card button.text {
+      background-color: #2196f3;
+    }
+
+    .page-card button:hover {
+      background-color: #388e3c;
+    }
+
+    .page-card button.edit:hover {
+      background-color: #e69500;
+    }
+
+    .page-card button.text:hover {
+      background-color: #1976d2;
+    }
+
+    /* Modal for Edit Text */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin: 10px 0;
+      padding: 10px;
+    }
+
+    .modal button {
+      padding: 8px 12px;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .save-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .close-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background-color: #388e3c;
+    }
+
+    .close-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    /* Modal for Edit Title */
+    .modal-title {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-title-content {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+    <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1>Manage Pages</h1>
+    <div id="page-list"></div>
+  </div>
+
+  <!-- Edit Text Modal -->
+  <div class="modal" id="editTextModal">
+    <div class="modal-content">
+      <h3>Edit Page Content</h3>
+      <textarea id="text-content" placeholder="Type your content here..."></textarea>
+      <div style="text-align: right;">
+        <button class="save-btn" id="save-text-btn">Save Changes</button>
+        <button class="close-btn" id="close-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Title Modal -->
+  <div class="modal-title" id="editTitleModal">
+    <div class="modal-title-content">
+      <h3>Edit Page Title</h3>
+      <input type="text" id="title-input" placeholder="Enter new title" />
+      <div style="text-align: right;">
+        <button class="save-btn" id="save-title-btn">Save Title</button>
+        <button class="close-btn" id="close-title-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPageId = null;
+
+    async function initializeDashboard() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You are not authorized. Redirecting to login...');
+        window.location.href = '/index.html';
+        return;
+      }
+
+      await fetchPages();
+    }
+
+    async function fetchPages() {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:8080/get-pages', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const pages = await response.json();
+        renderPageList(pages);
+      } catch (error) {
+        console.error('Error during fetch:', error);
+      }
+    }
+
+    function renderPageList(pages) {
+      const pageListDiv = document.getElementById('page-list');
+      pageListDiv.innerHTML = '';
+
+      if (Array.isArray(pages)) {
+        pages.forEach(page => {
+          const pageDiv = document.createElement('div');
+          pageDiv.className = 'page-card';
+          pageDiv.innerHTML = `
+            <div style="flex-grow:1;">${page.title}</div>
+            <button class="edit" onclick="editPageTitle('${page._id}', '${page.title}')">Edit name</button>
+            <button class="text" onclick="openEditTextModal('${page._id}', '${page.content || ''}')">Edit text</button>
+            <button onclick="deletePage('${page._id}')">Delete page</button>
+          `;
+          pageListDiv.appendChild(pageDiv);
+        });
+      } else {
+        console.error('Fetched pages are not an array:', pages);
+        pageListDiv.innerHTML = '<p>No pages available.</p>';
+      }
+    }
+
+    function openEditTextModal(id, content) {
+      currentPageId = id;
+      const modal = document.getElementById('editTextModal');
+      const textarea = document.getElementById('text-content');
+      textarea.value = content;
+      modal.style.display = 'flex';
+    }
+
+    function editPageTitle(id, title) {
+      currentPageId = id;
+      const modal = document.getElementById('editTitleModal');
+      const titleInput = document.getElementById('title-input');
+      titleInput.value = title;
+      modal.style.display = 'flex';
+    }
+
+    async function saveTextChanges() {
+      const token = localStorage.getItem('token');
+      const textContent = document.getElementById('text-content').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/update-text/${currentPageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content: textContent }),
+        });
+
+        if (response.ok) {
+          alert('Text updated successfully');
+          closeModal();
+          fetchPages();
+        } else {
+          alert('Failed to save changes');
+        }
+      } catch (error) {
+        console.error('Error saving text changes:', error);
+      }
+    }
+
+    async function saveTitleChanges() {
+      const token = localStorage.getItem('token');
+      const newTitle = document.getElementById('title-input').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/update-title/${currentPageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title: newTitle }),
+        });
+
+        if (response.ok) {
+          alert('Title updated successfully');
+          closeTitleModal();
+          fetchPages();
+        } else {
+          alert('Failed to save title');
+        }
+      } catch (error) {
+        console.error('Error saving title:', error);
+      }
+    }
+
+    async function deletePage(id) {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`http://localhost:8080/delete-page/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          alert('Page deleted successfully');
+          fetchPages();
+        } else {
+          alert('Failed to delete page');
+        }
+      } catch (error) {
+        console.error('Error deleting page:', error);
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('editTextModal');
+      modal.style.display = 'none';
+    }
+
+    function closeTitleModal() {
+      const modal = document.getElementById('editTitleModal');
+      modal.style.display = 'none';
+    }
+
+    document.getElementById('save-text-btn').addEventListener('click', saveTextChanges);
+    document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+    document.getElementById('save-title-btn').addEventListener('click', saveTitleChanges);
+    document.getElementById('close-title-modal-btn').addEventListener('click', closeTitleModal);
+
+    document.getElementById('add-page-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:8080/save-page/new', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          alert('New page created successfully');
+          fetchPages();
+        } else {
+          alert('Failed to create new page');
+        }
+      } catch (error) {
+        console.error('Error creating new page:', error);
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      alert('Logged out successfully! Redirecting to login page...');
+      window.location.href = '/index.html';
+    });
+
+    document.addEventListener('DOMContentLoaded', initializeDashboard);
+  </script>
+</body>
+
+</html>
