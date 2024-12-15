@@ -273,8 +273,10 @@ app.post('/password-reset', async (req, res) => {
 
 // Fetch Pages for Authenticated User
 app.get('/get-pages', authenticateToken, async (req, res) => {
+  console.log('User ID:', req.user.id); // Log user ID
   try {
     const pages = await Page.find({ userId: req.user.id });
+    console.log('Fetched Pages:', pages); // Log fetched pages
     if (pages.length === 0) {
       const defaultPage = new Page({
         title: 'Welcome Page',
@@ -290,6 +292,7 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching pages' });
   }
 });
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {
