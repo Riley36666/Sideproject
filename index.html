@@ -164,13 +164,13 @@
 
   <script>
     const API_URL = 'https://sideprojectnode.netlify.app';
-
+  
     // Toggle between Login and Register forms
     function showLogin() {
       document.getElementById('login-section').style.display = 'block';
       document.getElementById('register-section').style.display = 'none';
     }
-
+  
     function showRegister() {
       document.getElementById('login-section').style.display = 'none';
       document.getElementById('register-section').style.display = 'block';
@@ -181,39 +181,40 @@
       const button = event.target.querySelector('button');
       button.disabled = true;
       button.textContent = 'Processing...';
-
+  
       const username = document.getElementById(`${formType}-username`).value;
       const password = document.getElementById(`${formType}-password`).value;
       const email = formType === 'register' ? document.getElementById('register-email').value : null;
-
+  
       const endpoint = formType === 'login' ? '/login' : '/register';
       const body = formType === 'login' ? { username, password } : { username, password, email };
-
+  
       try {
         const response = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-
+  
         const messageElement = document.getElementById(`${formType}-message`);
         let data = {};
-
+  
+        // Check if the response is valid JSON
         try {
-          // Attempt to parse the JSON response
           data = await response.json();
         } catch (err) {
           console.error('Failed to parse JSON:', err);
+          data.message = 'Server returned an invalid response';
         }
-
+  
         if (response.ok) {
           if (formType === 'login') {
-            localStorage.setItem('token', data.token);
+            localStorage.setItem('token', data.token); // Save the token
             alert('Logged in successfully!');
-            window.location.href = '/dashboard.html';
+            window.location.href = '/dashboard.html'; // Redirect after successful login
           } else {
             alert('Registered successfully!');
-            showLogin();
+            showLogin(); // Switch to login form after successful registration
           }
         } else {
           messageElement.textContent = data.message || 'Something went wrong';
@@ -226,10 +227,11 @@
         button.textContent = formType === 'login' ? 'Log In' : 'Sign Up';
       }
     }
-
+  
     document.getElementById('login-form').addEventListener('submit', (event) => handleSubmit(event, 'login'));
     document.getElementById('register-form').addEventListener('submit', (event) => handleSubmit(event, 'register'));
   </script>
+  
 </body>
 
 </html>
