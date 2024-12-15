@@ -16,8 +16,12 @@ const jwtSecret = process.env.JWT_SECRET;
 
 // Middleware setup
 app.use(bodyParser.json());
-app.use(cors());
-app.use(express.static(__dirname));
+app.use(cors({
+  origin: 'https://sideprojectnode.netlify.app', // Replace with your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 
 // MongoDB connection
 mongoose.connect(mongoURI, {
