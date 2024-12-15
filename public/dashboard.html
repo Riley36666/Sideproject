@@ -244,26 +244,30 @@
     }
 
     async function fetchPages() {
-      const token = localStorage.getItem('token');
-      console.log('Token:', token);
-      try {
-        const response = await fetch(`${apiUrl}/get-pages`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log('Response Status:', response.status);  // Log the status code
-        if (!response.ok) {
-          // If the response is not OK, log the response body to understand the issue
-          const errorText = await response.text();
-          throw new Error(`Failed to fetch pages: ${response.status} - ${errorText}`);
-        }
-        console.log("test");
-        const pages = await response.json();
-        console.log('Fetched pages:', pages);
-        renderPageList(pages);
-      } catch (error) {
-        console.error('Error during fetch:', error);
-      }
+  const token = localStorage.getItem('token');
+  console.log('Token:', token);
+  const pageListDiv = document.getElementById('page-list');
+  pageListDiv.innerHTML = 'Loading pages...';  // Add a loading state
+
+  try {
+    const response = await fetch(`${apiUrl}/get-pages`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('Response Status:', response.status);  // Log the status code
+    if (!response.ok) {
+      // If the response is not OK, log the response body to understand the issue
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch pages: ${response.status} - ${errorText}`);
     }
+    const pages = await response.json();
+    console.log('Fetched pages:', pages);
+    renderPageList(pages);
+  } catch (error) {
+    console.error('Error during fetch:', error);
+    pageListDiv.innerHTML = '<p>Error loading pages. Please try again later.</p>'; // Error handling
+  }
+}
+
 
     function renderPageList(pages) {
       const pageListDiv = document.getElementById('page-list');
