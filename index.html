@@ -7,66 +7,114 @@
   <title>Login and Register</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-    /* General Reset */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Raleway', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
 
-    /* Login/Register Form Styling */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+    }
+
     .form-container {
-      display: block;
-      margin: 10px auto;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
       max-width: 400px;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: 100%;
     }
 
     .form-header {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 600;
     }
 
-    .login__field,
-    input[type="text"],
-    input[type="password"],
-    input[type="email"] {
-      margin: 10px 0;
+    .login__field {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .login__input {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 12px 15px;
+      border: none;
+      border-bottom: 2px solid #ddd;
+      background: transparent;
+      outline: none;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .login__input:focus {
+      border-color: #ff9a9e;
+    }
+
+    .login__input::placeholder {
+      color: #aaa;
     }
 
     button {
-      padding: 10px 15px;
-      background-color: #6a79f7;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
       border: none;
+      border-radius: 25px;
       color: white;
-      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
 
     button:hover {
-      background-color: #5562d6;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .switch-button {
-      margin: 10px auto;
-      display: block;
-      background-color: #ccc;
+      background: transparent;
+      color: #ff9a9e;
+      margin-top: 20px;
+      font-weight: 400;
+    }
+
+    .switch-button:hover {
+      background: rgba(255, 154, 158, 0.1);
+      transform: none;
+      box-shadow: none;
     }
 
     p {
       margin: 10px 0;
-      color: red;
+      color: #e74c3c;
+      text-align: center;
+    }
+
+    .icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    #login-message,
+    #register-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -75,41 +123,48 @@
   <div class="form-container">
     <!-- Login Form -->
     <div id="login-section">
-      <h1 class="form-header">Login</h1>
+      <h1 class="form-header">Welcome Back</h1>
       <form id="login-form">
         <div class="login__field">
-          <input type="text" id="login-username" class="login__input" placeholder="Username" required />
+          <input type="text" id="login-username" class="login__input" placeholder="Username" required autocomplete="username" />
+          <i class="fas fa-user icon"></i>
         </div>
         <div class="login__field">
-          <input type="password" id="login-password" class="login__input" placeholder="Password" required />
+          <input type="password" id="login-password" class="login__input" placeholder="Password" required autocomplete="current-password" />
+          <i class="fas fa-lock icon"></i>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Log In</button>
         <p id="login-message"></p>
       </form>
-      <button class="switch-button" onclick="showRegister()">Go to Register</button>
+      <button class="switch-button" onclick="showRegister()">New here? Create an account</button>
     </div>
 
     <!-- Register Form -->
     <div id="register-section" style="display: none;">
-      <h1 class="form-header">Register</h1>
+      <h1 class="form-header">Create Account</h1>
       <form id="register-form">
         <div class="login__field">
-          <input type="text" id="register-username" class="login__input" placeholder="Username" required />
+          <input type="text" id="register-username" class="login__input" placeholder="Username" required autocomplete="username" />
+          <i class="fas fa-user icon"></i>
         </div>
         <div class="login__field">
-          <input type="password" id="register-password" class="login__input" placeholder="Password" required />
+          <input type="password" id="register-password" class="login__input" placeholder="Password" required autocomplete="new-password" />
+          <i class="fas fa-lock icon"></i>
         </div>
         <div class="login__field">
-          <input type="email" id="register-email" class="login__input" placeholder="Email" required />
+          <input type="email" id="register-email" class="login__input" placeholder="Email" required autocomplete="email" />
+          <i class="fas fa-envelope icon"></i>
         </div>
-        <button type="submit">Register</button>
+        <button type="submit">Sign Up</button>
         <p id="register-message"></p>
       </form>
-      <button class="switch-button" onclick="showLogin()">Go to Login</button>
+      <button class="switch-button" onclick="showLogin()">Already have an account? Log in</button>
     </div>
   </div>
 
   <script>
+    const API_URL = 'https://sideprojectnode.netlify.app';
+
     // Toggle between Login and Register forms
     function showLogin() {
       document.getElementById('login-section').style.display = 'block';
@@ -121,61 +176,52 @@
       document.getElementById('register-section').style.display = 'block';
     }
 
-    // Handle Login
-    document.getElementById('login-form').addEventListener('submit', async (event) => {
+    async function handleSubmit(event, formType) {
       event.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
+      const button = event.target.querySelector('button');
+      button.disabled = true;
+      button.textContent = 'Processing...';
+
+      const username = document.getElementById(`${formType}-username`).value;
+      const password = document.getElementById(`${formType}-password`).value;
+      const email = formType === 'register' ? document.getElementById('register-email').value : null;
+
+      const endpoint = formType === 'login' ? '/login' : '/register';
+      const body = formType === 'login' ? { username, password } : { username, password, email };
 
       try {
-        const response = await fetch('/login', { // Use relative URL
+        const response = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify(body),
         });
 
         const data = await response.json();
-        const loginMessage = document.getElementById('login-message');
-
-        if (response.ok && data.token) {
-          localStorage.setItem('token', data.token);
-          alert('Logged in successfully!');
-          window.location.href = "/dashboard.html";
-        } else {
-          loginMessage.textContent = data.message || 'Login failed';
-        }
-      } catch (error) {
-        console.error('Error during login:', error);
-      }
-    });
-
-    // Handle Register
-    document.getElementById('register-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const username = document.getElementById('register-username').value;
-      const password = document.getElementById('register-password').value;
-      const email = document.getElementById('register-email').value;
-
-      try {
-        const response = await fetch('/register', { // Use relative URL
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, email }),
-        });
-
-        const data = await response.json();
-        const registerMessage = document.getElementById('register-message');
+        const messageElement = document.getElementById(`${formType}-message`);
 
         if (response.ok) {
-          alert('Registered successfully!');
-          showLogin(); // Switch to login after successful registration
+          if (formType === 'login') {
+            localStorage.setItem('token', data.token);
+            alert('Logged in successfully!');
+            window.location.href = '/dashboard.html';
+          } else {
+            alert('Registered successfully!');
+            showLogin();
+          }
         } else {
-          registerMessage.textContent = data.message || 'Registration failed';
+          messageElement.textContent = data.message || 'Something went wrong';
         }
       } catch (error) {
-        console.error('Error during registration:', error);
+        console.error('Error:', error);
+        document.getElementById(`${formType}-message`).textContent = 'Network error. Please try again later.';
+      } finally {
+        button.disabled = false;
+        button.textContent = formType === 'login' ? 'Log In' : 'Sign Up';
       }
-    });
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (event) => handleSubmit(event, 'login'));
+    document.getElementById('register-form').addEventListener('submit', (event) => handleSubmit(event, 'register'));
   </script>
 </body>
 
