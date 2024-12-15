@@ -67,26 +67,24 @@ const pageSchema = new mongoose.Schema({
 });
 const Page = mongoose.model('Page', pageSchema);
 
-// Token Authentication Middleware
-function authenticateToken(req, res, next) {
+// Token Authentication Middlewarefunction authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401);
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization token missing' });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      console.error('Token verification error:', err);
-      if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ message: 'Token expired' });
-      }
-      return res.sendStatus(403);
+      const errorMessage = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
+      return res.status(401).json({ message: errorMessage });
     }
 
     req.user = user;
     next();
   });
-}
+
 
 
 // Serve static files (if your frontend is built and stored in the 'public' folder)
@@ -274,10 +272,8 @@ app.post('/password-reset', async (req, res) => {
 
 // Fetch Pages for Authenticated User
 app.get('/get-pages', authenticateToken, async (req, res) => {
-  console.log('User ID:', req.user.id); // Log user ID
   try {
     const pages = await Page.find({ userId: req.user.id });
-    console.log('Fetched Pages:', pages); // Log fetched pages
     if (pages.length === 0) {
       const defaultPage = new Page({
         title: 'Welcome Page',
@@ -293,6 +289,7 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching pages' });
   }
 });
+
 
 
 
