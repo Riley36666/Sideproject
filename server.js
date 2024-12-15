@@ -6,6 +6,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
+const rateLimit = require('express-rate-limit');
 
 // Initialize app
 const app = express();
@@ -14,9 +16,11 @@ const port = process.env.PORT || 8080;
 // Environment Variables
 const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS;
 
-if (!mongoURI || !jwtSecret) {
-  console.error('Error: MONGO_URI and JWT_SECRET must be set in .env');
+if (!mongoURI || !jwtSecret || !emailUser || !emailPass) {
+  console.error('Error: MONGO_URI, JWT_SECRET, EMAIL_USER, and EMAIL_PASS must be set in .env');
   process.exit(1);
 }
 
@@ -27,6 +31,13 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Rate Limiting
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many login attempts from this IP, please try again later.'
+});
 
 // MongoDB Connection
 mongoose.connect(mongoURI)
@@ -43,6 +54,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
+userSchema.index({ username: 1 });
+userSchema.index({ email: 1 });
 const User = mongoose.model('User', userSchema);
 
 // Page Schema and Model
@@ -75,19 +88,29 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Default route for '/'
-app.get('/', (req, res) => {
-  const indexPath = path.resolve(__dirname, 'public', 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading the homepage.');
-    }
+// Serve static files (if your frontend is built and stored in the 'build' folder)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'build')));
+  
+  // Serve index.html for all other requests (useful for client-side routing)
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
   });
-});
+} else {
+  // Default route for '/'
+  app.get('/', (req, res) => {
+    const indexPath = path.resolve(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error sending index.html:', err);
+        res.status(500).send('Error loading the homepage.');
+      }
+    });
+  });
+}
 
-// Login Route
-app.post('/login', async (req, res) => {
+// Login Route with Rate Limiting
+app.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -138,6 +161,45 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Password Reset Route
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: emailUser,
+    pass: emailPass,
+  },
+});
+
+app.post('/password-reset', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+
+    const resetLink = `https://yourfrontend.com/reset-password?token=${token}`;
+    const mailOptions = {
+      to: email,
+      subject: 'Password Reset',
+      text: `To reset your password, click the following link: ${resetLink}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Password reset link sent' });
+  } catch (error) {
+    console.error('Error during password reset:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Fetch Pages for Authenticated User
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
@@ -156,6 +218,15 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     console.error('Error fetching pages:', error);
     res.status(500).json({ message: 'Error fetching pages' });
   }
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'production' ? {} : err.stack
+  });
 });
 
 // Server Start
