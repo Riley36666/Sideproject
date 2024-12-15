@@ -251,7 +251,7 @@
         const response = await fetch(`${apiUrl}/get-pages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+        console.log('Response Status:', response.status);  // Log the status code
         if (!response.ok) {
           // If the response is not OK, log the response body to understand the issue
           const errorText = await response.text();
