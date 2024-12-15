@@ -27,16 +27,16 @@ if (!mongoURI || !jwtSecret || !emailUser || !emailPass) {
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: '*', // Allow any origin
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Rate Limiting
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
-  message: 'Too many login attempts from this IP, please try again later.'
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Too many login attempts from this IP, please try again later.',
 });
 
 // MongoDB Connection
@@ -67,7 +67,8 @@ const pageSchema = new mongoose.Schema({
 });
 const Page = mongoose.model('Page', pageSchema);
 
-// Token Authentication Middlewarefunction authenticateToken(req, res, next) {
+// Token Authentication Middleware
+function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -84,77 +85,34 @@ const Page = mongoose.model('Page', pageSchema);
     req.user = user;
     next();
   });
-
-
-
-// Serve static files (if your frontend is built and stored in the 'public' folder)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'public')));
-
-  // Serve index.html for root route
-  app.get('/', (req, res) => {
-    const indexPath = path.resolve(__dirname, 'public', 'index.html');
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error('Error sending index.html:', err);
-        res.status(500).send('Error loading the homepage.');
-      }
-    });
-  });
-
-  // Serve dashboard.html for '/dashboard' route
-  app.get('/dashboard', (req, res) => {
-    const dashboardPath = path.resolve(__dirname, 'public', 'dashboard.html');
-    res.sendFile(dashboardPath, (err) => {
-      if (err) {
-        console.error('Error sending dashboard.html:', err);
-        res.status(500).send('Error loading the dashboard.');
-      }
-    });
-  });
-
-  // Catch-all route to serve index.html for all other routes (useful for client-side routing)
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-  });
-} else {
-  // Default route for '/'
-  app.get('/', (req, res) => {
-    const indexPath = path.resolve(__dirname, 'public', 'index.html');
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error('Error sending index.html:', err);
-        res.status(500).send('Error loading the homepage.');
-      }
-    });
-  });
 }
 
-// Login Route with Rate Limiting
+// Serve static files
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
+  app.get('/dashboard', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'dashboard.html')));
+  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
+} else {
+  app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
+}
+
+// Login Route
 app.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
-
   if (!username || !password) {
     return res.status(400).json({ message: 'Username and password are required' });
   }
 
   try {
     const user = await User.findOne({ username });
-    if (!user) {
-      console.log(`User not found: ${username}`);
-      return res.status(401).json({ message: 'Invalid username or password' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      console.log(`Invalid password for user: ${username}`);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
     const token = jwt.sign({ id: user._id, username: user.username }, jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
-    console.error('Error during login:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -162,148 +120,38 @@ app.post('/login', loginLimiter, async (req, res) => {
 // Registration Route
 app.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
-
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
+    if (await User.findOne({ $or: [{ username }, { email }] })) {
       return res.status(409).json({ message: 'Username or email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, password: hashedPassword, email });
-
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-// Save Page Route
-app.post('/save-page', authenticateToken, async (req, res) => {
-  const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required' });
-  }
-
-  try {
-    const newPage = new Page({
-      title,
-      content,
-      userId: req.user.id,  // Use authenticated user's ID
-    });
-
-    await newPage.save();
-    res.status(201).json({ message: 'Page saved successfully', page: newPage });
-  } catch (error) {
-    console.error('Error saving page:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-app.post('/save-page/new', authenticateToken, async (req, res) => {
-  const { title, content } = req.body;
-
-  // If title or content is missing, set default values
-  const newTitle = title || "Untitled Page";  // Default title
-  const newContent = content || "This is the default content. You can edit it later.";  // Default content
-
-  try {
-    // Create a new page using the provided or default title/content
-    const newPage = new Page({
-      title: newTitle,
-      content: newContent,
-      userId: req.user.id,  // Use authenticated user's ID
-    });
-
-    // Save the new page to the database
-    await newPage.save();
-
-    // Send a success response with the created page details
-    res.status(201).json({ message: 'Page saved successfully', page: newPage });
-  } catch (error) {
-    console.error('Error saving page:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Password Reset Route
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: emailUser,
-    pass: emailPass,
-  },
-});
-
-app.post('/password-reset', async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
-
-    const resetLink = `https://yourfrontend.com/reset-password?token=${token}`;
-    const mailOptions = {
-      to: email,
-      subject: 'Password Reset',
-      text: `To reset your password, click the following link: ${resetLink}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Password reset link sent' });
-  } catch (error) {
-    console.error('Error during password reset:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// Fetch Pages for Authenticated User
+// Fetch Pages
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
     if (pages.length === 0) {
-      const defaultPage = new Page({
-        title: 'Welcome Page',
-        content: 'This is your first page. You can edit it from the dashboard.',
-        userId: req.user.id,
-      });
+      const defaultPage = new Page({ title: 'Welcome Page', content: 'Edit this page.', userId: req.user.id });
       await defaultPage.save();
       return res.status(200).json([defaultPage]);
     }
     res.status(200).json(pages);
   } catch (error) {
-    console.error('Error fetching pages:', error);
     res.status(500).json({ message: 'Error fetching pages' });
   }
 });
 
-
-
-
-// Global Error Handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'production' ? {} : err.stack
-  });
-});
-
-// Server Start
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-  console.log(emailUser);
-});
+// Start Server
+app.listen(port, () => console.log(`Server running on port ${port}`));
