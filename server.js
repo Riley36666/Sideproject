@@ -18,6 +18,9 @@ const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 const emailUser = process.env.EMAIL_USER;
 const emailPass = process.env.EMAIL_PASS;
+console.log('MONGO_URI:', process.env.MONGO_URI);
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
 
 if (!mongoURI || !jwtSecret || !emailUser || !emailPass) {
   console.error('Error: MONGO_URI, JWT_SECRET, EMAIL_USER, and EMAIL_PASS must be set in .env');
@@ -120,11 +123,13 @@ app.post('/login', loginLimiter, async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user) {
+      console.log(`User not found: ${username}`);
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log(`Invalid password for user: ${username}`);
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
@@ -135,6 +140,7 @@ app.post('/login', loginLimiter, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 // Registration Route
 app.post('/register', async (req, res) => {
