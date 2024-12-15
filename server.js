@@ -1,3 +1,5 @@
+require('dotenv').config(); // Add this line at the top of the file
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -6,11 +8,11 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080; // Use the PORT environment variable or default to 8080
 
-// Sensitive configurations
-const mongoURI = 'mongodb+srv://riley36666:Riley@cluster0.yx0zv.mongodb.net/myDatabaseName?retryWrites=true&w=majority';
-const jwtSecret = 'your_very_strong_secret_key';
+// Use environment variables
+const mongoURI = process.env.MONGO_URI;
+const jwtSecret = process.env.JWT_SECRET;
 
 // Middleware setup
 app.use(bodyParser.json());
@@ -339,6 +341,6 @@ app.post('/save-page/new', authenticateToken, async (req, res) => {
 });
 
 // Server start
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });

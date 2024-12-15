@@ -228,6 +228,8 @@
   </div>
 
   <script>
+    const apiUrl = 'https://website2-2-ft5y.onrender.com'; // Replace with your Render app URL
+
     let currentPageId = null;
 
     async function initializeDashboard() {
@@ -244,7 +246,7 @@
     async function fetchPages() {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('http://localhost:8080/get-pages', {
+        const response = await fetch(`${apiUrl}/get-pages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -298,7 +300,7 @@
       const textContent = document.getElementById('text-content').value;
 
       try {
-        const response = await fetch(`http://localhost:8080/update-text/${currentPageId}`, {
+        const response = await fetch(`${apiUrl}/update-text/${currentPageId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -324,7 +326,7 @@
       const newTitle = document.getElementById('title-input').value;
 
       try {
-        const response = await fetch(`http://localhost:8080/update-title/${currentPageId}`, {
+        const response = await fetch(`${apiUrl}/update-title/${currentPageId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -349,7 +351,7 @@
       const token = localStorage.getItem('token');
 
       try {
-        const response = await fetch(`http://localhost:8080/delete-page/${id}`, {
+        const response = await fetch(`${apiUrl}/delete-page/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -384,7 +386,7 @@
     document.getElementById('add-page-btn').addEventListener('click', async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('http://localhost:8080/save-page/new', {
+        const response = await fetch(`${apiUrl}/save-page/new`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
