@@ -247,8 +247,13 @@ async function fetchPages() {
   const token = localStorage.getItem('token');
   console.log('Token:', token);
   try {
+    console.log('Attempting to fetch pages from:', `${apiUrl}/get-pages`);
     const response = await fetch(`${apiUrl}/get-pages`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'GET'
     });
     console.log('Response Status:', response.status);
 
@@ -270,7 +275,10 @@ async function fetchPages() {
     }
   } catch (error) {
     console.error('Error during fetch:', error);
-    alert('Failed to fetch pages. Please try again later.');
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      console.error('Network error or CORS issue. Check if the server is running and accessible.');
+    }
+    alert('Failed to fetch pages. Please check your network connection and try again later.');
   }
 }
 
