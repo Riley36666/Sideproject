@@ -18,9 +18,6 @@ const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 const emailUser = process.env.EMAIL_USER;
 const emailPass = process.env.EMAIL_PASS;
-console.log('MONGO_URI:', process.env.MONGO_URI);
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
 
 if (!mongoURI || !jwtSecret || !emailUser || !emailPass) {
   console.error('Error: MONGO_URI, JWT_SECRET, EMAIL_USER, and EMAIL_PASS must be set in .env');
@@ -30,7 +27,7 @@ if (!mongoURI || !jwtSecret || !emailUser || !emailPass) {
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: ['https://sideprojectnode.netlify.app', 'http://localhost:3000'],
+  origin: '*', // Allow any origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -94,7 +91,7 @@ function authenticateToken(req, res, next) {
 // Serve static files (if your frontend is built and stored in the 'build' folder)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
-  
+
   // Serve index.html for all other requests (useful for client-side routing)
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
@@ -140,7 +137,6 @@ app.post('/login', loginLimiter, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 
 // Registration Route
 app.post('/register', async (req, res) => {
