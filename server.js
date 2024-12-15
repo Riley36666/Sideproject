@@ -23,10 +23,22 @@ if (!mongoURI || !jwtSecret) {
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://sideprojectnode.netlify.app', // Replace with your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ['https://sideprojectnode.netlify.app', 'http://localhost:3000'], // Add all frontend URLs
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include OPTIONS for preflight requests
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Handle Preflight Requests
+app.options('*', cors());
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // MongoDB Connection
 mongoose.connect(mongoURI, {
