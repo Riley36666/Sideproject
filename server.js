@@ -29,10 +29,7 @@ app.use(cors({
 }));
 
 // MongoDB Connection
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected'))
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);
@@ -80,7 +77,13 @@ function authenticateToken(req, res, next) {
 
 // Default route for '/'
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.resolve(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading the homepage.');
+    }
+  });
 });
 
 // Login Route
@@ -152,92 +155,6 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching pages:', error);
     res.status(500).json({ message: 'Error fetching pages' });
-  }
-});
-
-// Save or Update a Page
-app.post('/save-page/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { title = 'Untitled Page', content = 'No content yet.' } = req.body;
-
-  try {
-    if (id === 'new') {
-      const newPage = new Page({ title, content, userId: req.user.id });
-      await newPage.save();
-      return res.status(201).json({ message: 'Page created successfully', pageId: newPage._id });
-    }
-
-    const page = await Page.findByIdAndUpdate(id, { title, content }, { new: true });
-    if (!page) {
-      return res.status(404).json({ message: 'Page not found' });
-    }
-
-    res.status(200).json({ message: 'Page updated successfully', page });
-  } catch (error) {
-    console.error('Error saving page:', error);
-    res.status(500).json({ message: 'Error saving page' });
-  }
-});
-
-// Update Only Page Content
-app.put('/update-content/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { content } = req.body;
-
-  if (!content) {
-    return res.status(400).json({ message: 'Content is required' });
-  }
-
-  try {
-    const page = await Page.findByIdAndUpdate(id, { content }, { new: true });
-    if (!page) {
-      return res.status(404).json({ message: 'Page not found' });
-    }
-    res.status(200).json({ message: 'Content updated successfully', page });
-  } catch (error) {
-    console.error('Error updating content:', error);
-    res.status(500).json({ message: 'Error updating content' });
-  }
-});
-
-// Update Page Title
-app.put('/update-title/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { title } = req.body;
-
-  if (!title) {
-    return res.status(400).json({ message: 'Title is required' });
-  }
-
-  try {
-    const page = await Page.findByIdAndUpdate(id, { title }, { new: true });
-    if (!page) {
-      return res.status(404).json({ message: 'Page not found' });
-    }
-    res.status(200).json({ message: 'Title updated successfully', page });
-  } catch (error) {
-    console.error('Error updating title:', error);
-    res.status(500).json({ message: 'Error updating title' });
-  }
-});
-
-// Delete a Page
-app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid page ID' });
-  }
-
-  try {
-    const page = await Page.findOneAndDelete({ _id: id, userId: req.user.id });
-    if (!page) {
-      return res.status(404).json({ message: 'Page not found or unauthorized' });
-    }
-    res.status(200).json({ message: 'Page deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting page:', error);
-    res.status(500).json({ message: 'Server error' });
   }
 });
 
