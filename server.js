@@ -209,18 +209,22 @@ app.post('/save-page', authenticateToken, async (req, res) => {
 app.post('/save-page/new', authenticateToken, async (req, res) => {
   const { title, content } = req.body;
 
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required' });
-  }
+  // If title or content is missing, set default values
+  const newTitle = title || "Untitled Page";  // Default title
+  const newContent = content || "This is the default content. You can edit it later.";  // Default content
 
   try {
+    // Create a new page using the provided or default title/content
     const newPage = new Page({
-      title,
-      content,
+      title: newTitle,
+      content: newContent,
       userId: req.user.id,  // Use authenticated user's ID
     });
 
+    // Save the new page to the database
     await newPage.save();
+
+    // Send a success response with the created page details
     res.status(201).json({ message: 'Page saved successfully', page: newPage });
   } catch (error) {
     console.error('Error saving page:', error);
