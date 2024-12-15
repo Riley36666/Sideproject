@@ -280,6 +280,7 @@
       } catch (error) {
         console.error('Error during fetch:', error);
         if (error.message === 'Session expired. Please log in again.') {
+          console.log(localStorage.getItem('token'));
           localStorage.removeItem('token');
           alert('Your session has expired. Please log in again.');
           window.location.href = '/index.html';
