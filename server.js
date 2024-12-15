@@ -88,11 +88,33 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Serve static files (if your frontend is built and stored in the 'build' folder)
+// Serve static files (if your frontend is built and stored in the 'public' folder)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // Serve index.html for all other requests (useful for client-side routing)
+  // Serve index.html for root route
+  app.get('/', (req, res) => {
+    const indexPath = path.resolve(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error sending index.html:', err);
+        res.status(500).send('Error loading the homepage.');
+      }
+    });
+  });
+
+  // Serve dashboard.html for '/dashboard' route
+  app.get('/dashboard', (req, res) => {
+    const dashboardPath = path.resolve(__dirname, 'public', 'dashboard.html');
+    res.sendFile(dashboardPath, (err) => {
+      if (err) {
+        console.error('Error sending dashboard.html:', err);
+        res.status(500).send('Error loading the dashboard.');
+      }
+    });
+  });
+
+  // Catch-all route to serve index.html for all other routes (useful for client-side routing)
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
   });
