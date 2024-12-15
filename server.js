@@ -1,12 +1,11 @@
 require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const path = require('path');  // Add this line to fix the error
+const path = require('path');
 
 // Initialize app
 const app = express();
@@ -24,22 +23,10 @@ if (!mongoURI || !jwtSecret) {
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: ['https://sideprojectnode.netlify.app', 'http://localhost:3000'], // Add all frontend URLs
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include OPTIONS for preflight requests
+  origin: ['https://sideprojectnode.netlify.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
-// Handle Preflight Requests
-app.options('*', cors());
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
 
 // MongoDB Connection
 mongoose.connect(mongoURI, {
@@ -180,11 +167,7 @@ app.post('/save-page/:id', authenticateToken, async (req, res) => {
       return res.status(201).json({ message: 'Page created successfully', pageId: newPage._id });
     }
 
-    const page = await Page.findByIdAndUpdate(
-      id,
-      { title, content },
-      { new: true }
-    );
+    const page = await Page.findByIdAndUpdate(id, { title, content }, { new: true });
     if (!page) {
       return res.status(404).json({ message: 'Page not found' });
     }
