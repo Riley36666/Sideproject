@@ -245,6 +245,7 @@
 
     async function fetchPages() {
   const token = localStorage.getItem('token');
+  console.log('Token:', token);
   try {
     const response = await fetch(`${apiUrl}/get-pages`, {
       headers: { Authorization: `Bearer ${token}` },
