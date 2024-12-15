@@ -231,7 +231,9 @@
     const apiUrl = 'https://website2-production-e553.up.railway.app'; // Replace with your Render app URL
 
     let currentPageId = null;
-
+    function getToken() {
+      return localStorage.getItem('token');
+    }
     async function initializeDashboard() {
       const token = localStorage.getItem('token');
       if (!token) {
