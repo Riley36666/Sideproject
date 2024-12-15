@@ -6,11 +6,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');  // Add this line to fix the error
-
-
 
 // Initialize app
 const app = express();
@@ -94,10 +90,12 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
 // Default route for '/'
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 // Login Route
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
