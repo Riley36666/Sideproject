@@ -243,29 +243,34 @@
       await fetchPages();
     }
 
-    async function fetchPages() {
+async function fetchPages() {
   const token = localStorage.getItem('token');
   console.log('Token:', token);
   try {
     const response = await fetch(`${apiUrl}/get-pages`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('Response Status:', response.status);  // Log the status code
+    console.log('Response Status:', response.status);
 
     if (!response.ok) {
-      const errorText = await response.text();  // Log the HTML response
+      const errorText = await response.text();
       console.error('Error response body:', errorText);
       throw new Error(`Failed to fetch pages: ${response.status} - ${errorText}`);
     }
 
-    // If the response is OK, try to parse as JSON
-    const responseText = await response.text();
-    console.log('Response Text:', responseText);
-    const pages = await response.json();
-    console.log('Fetched pages:', pages);
-    renderPageList(pages);
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      const pages = await response.json();
+      console.log('Fetched pages:', pages);
+      renderPageList(pages);
+    } else {
+      const textResponse = await response.text();
+      console.error('Unexpected response format:', textResponse);
+      throw new Error('Server did not return JSON');
+    }
   } catch (error) {
     console.error('Error during fetch:', error);
+    alert('Failed to fetch pages. Please try again later.');
   }
 }
 
