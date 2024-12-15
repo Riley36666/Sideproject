@@ -90,11 +90,11 @@ function authenticateToken(req, res, next) {
 // Serve static files
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
-  app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
-  app.get('/dashboard', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'dashboard.html')));
-  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
-} else {
-  app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'public', 'index.html')));
+
+  // Serve index.html for root route
+  app.get(['/', '/dashboard', '*'], (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  });
 }
 
 // Login Route
@@ -155,8 +155,7 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
       await defaultPage.save();
       return res.status(200).json([defaultPage]);
     }
-    res.status(200);
-    res.json(pages);
+    res.status(200).json(pages);
   } catch (error) {
     console.error('Error fetching pages:', error);
 
@@ -166,6 +165,14 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
   }
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+  });
+});
 
 // Start Server
 app.listen(port, () => console.log(`Server running on port ${port}`));
