@@ -70,23 +70,24 @@ const Page = mongoose.model('Page', pageSchema);
 // Token Authentication Middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
+  const token = authHeader && authHeader.split(' ')[1];
 
-  const [bearer, token] = authHeader.split(' ');
-  if (bearer !== 'Bearer' || !token) {
-    return res.status(401).json({ message: 'Invalid token format' });
-  }
+  if (token == null) return res.sendStatus(401);
 
-  jwt.verify(token, jwtSecret, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(401).json({ message: 'Unauthorized - invalid token' });
+      console.error('Token verification error:', err);
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Token expired' });
+      }
+      return res.sendStatus(403);
     }
-    req.user = decoded;
+
+    req.user = user;
     next();
   });
 }
+
 
 // Serve static files (if your frontend is built and stored in the 'public' folder)
 if (process.env.NODE_ENV === 'production') {

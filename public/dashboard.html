@@ -243,44 +243,54 @@
       await fetchPages();
     }
 
-async function fetchPages() {
-  const token = localStorage.getItem('token');
-  console.log('Token:', token);
-  try {
-    console.log('Attempting to fetch pages from:', `${apiUrl}/get-pages`);
-    const response = await fetch(`${apiUrl}/get-pages`, {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      method: 'GET'
-    });
-    console.log('Response Status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error response body:', errorText);
-      throw new Error(`Failed to fetch pages: ${response.status} - ${errorText}`);
+    async function fetchPages() {
+      const token = localStorage.getItem('token');
+      console.log('Token:', token);
+      try {
+        console.log('Attempting to fetch pages from:', `${apiUrl}/get-pages`);
+        const response = await fetch(`${apiUrl}/get-pages`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          method: 'GET'
+        });
+        console.log('Response Status:', response.status);
+    
+        if (response.ok) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            const pages = await response.json();
+            console.log('Fetched pages:', pages);
+            renderPageList(pages);
+          } else {
+            const textResponse = await response.text();
+            console.error('Unexpected response format:', textResponse);
+            if (textResponse.includes('<title>Login and Register</title>')) {
+              throw new Error('Session expired. Please log in again.');
+            } else {
+              throw new Error('Server did not return JSON');
+            }
+          }
+        } else {
+          const errorText = await response.text();
+          console.error('Error response body:', errorText);
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Error during fetch:', error);
+        if (error.message === 'Session expired. Please log in again.') {
+          alert('Your session has expired. Please log in again.');
+          localStorage.removeItem('token');
+          window.location.href = '/index.html';
+        } else if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+          console.error('Network error or CORS issue. Check if the server is running and accessible.');
+          alert('Failed to fetch pages. Please check your network connection and try again later.');
+        } else {
+          alert(`Failed to fetch pages: ${error.message}`);
+        }
+      }
     }
-
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.indexOf("application/json") !== -1) {
-      const pages = await response.json();
-      console.log('Fetched pages:', pages);
-      renderPageList(pages);
-    } else {
-      const textResponse = await response.text();
-      console.error('Unexpected response format:', textResponse);
-      throw new Error('Server did not return JSON');
-    }
-  } catch (error) {
-    console.error('Error during fetch:', error);
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      console.error('Network error or CORS issue. Check if the server is running and accessible.');
-    }
-    alert('Failed to fetch pages. Please check your network connection and try again later.');
-  }
-}
 
 
 
