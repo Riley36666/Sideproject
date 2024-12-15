@@ -246,6 +246,7 @@
     async function fetchPages() {
       const token = localStorage.getItem('token');
       console.log('Token:', token);
+      console.log('API URL:', apiUrl);
       try {
         const response = await fetch(`${apiUrl}/get-pages`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -351,7 +352,6 @@
         }
       } catch (error) {
         console.error('Error saving title:', error);
-        console.error('Response:', response);
       }
     }
 
