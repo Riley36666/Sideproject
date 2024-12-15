@@ -280,9 +280,10 @@
       } catch (error) {
         console.error('Error during fetch:', error);
         if (error.message === 'Session expired. Please log in again.') {
-          alert('Your session has expired. Please log in again.');
           localStorage.removeItem('token');
+          alert('Your session has expired. Please log in again.');
           window.location.href = '/index.html';
+          return; // Stop execution here to prevent further alerts
         } else if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
           console.error('Network error or CORS issue. Check if the server is running and accessible.');
           alert('Failed to fetch pages. Please check your network connection and try again later.');
