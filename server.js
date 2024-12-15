@@ -89,7 +89,10 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
+// Default route for '/'
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 // Login Route
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
