@@ -206,6 +206,27 @@ app.post('/save-page', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+app.post('/save-page/new', authenticateToken, async (req, res) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+
+  try {
+    const newPage = new Page({
+      title,
+      content,
+      userId: req.user.id,  // Use authenticated user's ID
+    });
+
+    await newPage.save();
+    res.status(201).json({ message: 'Page saved successfully', page: newPage });
+  } catch (error) {
+    console.error('Error saving page:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Password Reset Route
 const transporter = nodemailer.createTransport({
