@@ -6,6 +6,11 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');  // Add this line to fix the error
+
+
 
 // Initialize app
 const app = express();
