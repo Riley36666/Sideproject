@@ -93,11 +93,11 @@ function authenticateToken(req, res, next) {
 
 // Serve static files (if your frontend is built and stored in the 'build' folder)
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'build')));
+  app.use(express.static(path.join(__dirname, 'public')));
   
   // Serve index.html for all other requests (useful for client-side routing)
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
   });
 } else {
   // Default route for '/'
