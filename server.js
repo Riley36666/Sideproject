@@ -142,16 +142,29 @@ app.post('/register', async (req, res) => {
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
-    if (pages.length === 0) {
-      const defaultPage = new Page({ title: 'Welcome Page', content: 'Edit this page.', userId: req.user.id });
+
+    // Explicitly set the Content-Type header
+    res.setHeader('Content-Type', 'application/json');
+
+    if (!pages.length) {
+      const defaultPage = new Page({
+        title: 'Welcome Page',
+        content: 'This is your first page. Edit it from the dashboard.',
+        userId: req.user.id,
+      });
       await defaultPage.save();
       return res.status(200).json([defaultPage]);
     }
     res.status(200).json(pages);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching pages' });
+    console.error('Error fetching pages:', error);
+
+    // Ensure error responses also have the correct Content-Type
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 // Start Server
 app.listen(port, () => console.log(`Server running on port ${port}`));
