@@ -196,8 +196,15 @@
           body: JSON.stringify(body),
         });
 
-        const data = await response.json();
         const messageElement = document.getElementById(`${formType}-message`);
+        let data = {};
+
+        try {
+          // Attempt to parse the JSON response
+          data = await response.json();
+        } catch (err) {
+          console.error('Failed to parse JSON:', err);
+        }
 
         if (response.ok) {
           if (formType === 'login') {
