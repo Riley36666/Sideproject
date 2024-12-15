@@ -155,7 +155,8 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
       await defaultPage.save();
       return res.status(200).json([defaultPage]);
     }
-    res.status(200).json(pages);
+    res.status(200);
+    res.json(pages);
   } catch (error) {
     console.error('Error fetching pages:', error);
 
