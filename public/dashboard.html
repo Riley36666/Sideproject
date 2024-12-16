@@ -242,13 +242,13 @@
 
     async function fetchPages() {
   const token = getToken();
-  console.log('Token being used:', token); // Log the token
-
+  
   try {
     const response = await fetch(`${apiUrl}/get-pages`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json', // Explicitly request JSON
         'Content-Type': 'application/json',
       },
     });
@@ -262,6 +262,15 @@
       const errorText = await response.text();
       console.error('Error response body:', errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    // Check content type
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('Unexpected content type:', contentType);
+      console.error('Response body:', text);
+      throw new Error('Expected JSON response');
     }
 
     // Parse JSON
