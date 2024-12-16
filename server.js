@@ -68,24 +68,7 @@ const pageSchema = new mongoose.Schema({
 const Page = mongoose.model('Page', pageSchema);
 
 // Token Authentication Middleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({ message: 'Authorization token missing' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      const errorMessage = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
-      return res.status(401).json({ message: errorMessage });
-    }
-
-    req.user = user;
-    next();
-  });
-}
 
 // Serve static files
 if (process.env.NODE_ENV === 'production') {
@@ -139,13 +122,16 @@ app.post('/register', async (req, res) => {
 });
 
 // Fetch Pages
+// Modify the get-pages route to add more robust error handling
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
+    console.log('Authenticated user ID:', req.user.id); // Add logging for debugging
+
     const pages = await Page.find({ userId: req.user.id });
 
-    // Explicitly set the Content-Type header
-    res.setHeader('Content-Type', 'application/json');
-
+    // Explicitly set JSON content type and ensure JSON response
+    res.contentType('application/json');
+    
     if (!pages.length) {
       const defaultPage = new Page({
         title: 'Welcome Page',
@@ -155,15 +141,47 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
       await defaultPage.save();
       return res.status(200).json([defaultPage]);
     }
+    
     res.status(200).json(pages);
   } catch (error) {
-    console.error('Error fetching pages:', error);
-
-    // Ensure error responses also have the correct Content-Type
-    res.setHeader('Content-Type', 'application/json');
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error in get-pages route:', error);
+    
+    // Ensure JSON response even for errors
+    res.status(500)
+       .contentType('application/json')
+       .json({ 
+         message: 'Internal server error', 
+         error: process.env.NODE_ENV !== 'production' ? error.message : undefined 
+       });
   }
 });
+
+// Enhance the authenticateToken middleware for better debugging
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  console.log('Received Authorization Header:', authHeader); // Add logging
+
+  if (!token) {
+    return res.status(401)
+              .contentType('application/json')
+              .json({ message: 'Authorization token missing' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.error('Token verification error:', err); // Add error logging
+      const errorMessage = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
+      return res.status(401)
+                .contentType('application/json')
+                .json({ message: errorMessage });
+    }
+
+    req.user = user;
+    next();
+  });
+}
 
 // Global Error Handler
 app.use((err, req, res, next) => {

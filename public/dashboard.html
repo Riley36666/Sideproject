@@ -242,24 +242,34 @@
 
     async function fetchPages() {
   const token = getToken();
+  console.log('Token being used:', token); // Log the token
+
   try {
     const response = await fetch(`${apiUrl}/get-pages`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
 
+    // Log full response details
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+    // If not a success status, try to parse error message
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
+    // Parse JSON
     const pages = await response.json();
     renderPageList(pages);
   } catch (error) {
     console.error('Error fetching pages:', error);
-    alert('Error fetching pages. Please try again later.');
+    alert(`Error fetching pages: ${error.message}`);
   }
 }
 
