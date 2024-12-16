@@ -251,14 +251,12 @@
       },
     });
 
-    const contentType = response.headers.get('Content-Type');
-    if (contentType.includes('application/json')) {
-      const pages = await response.json();
-      renderPageList(pages);
-    } else {
-      console.error('Server returned unexpected content:', await response.text());
-      alert('Unexpected response from the server. Please contact support.');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const pages = await response.json();
+    renderPageList(pages);
   } catch (error) {
     console.error('Error fetching pages:', error);
     alert('Error fetching pages. Please try again later.');
