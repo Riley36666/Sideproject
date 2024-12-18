@@ -24,35 +24,43 @@
 
     .sidebar {
       width: 250px;
-      background-color: #2e3a59;
+      background-color: #34495e;
       color: #fff;
       padding: 20px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+      font-size: 1.5em;
     }
 
     .sidebar button {
-      display: block;
-      width: 100%;
+      width: 90%;
       margin: 10px 0;
       padding: 10px;
-      background-color: #4caf50;
+      background-color: #3498db;
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
+      font-size: 1em;
     }
 
     .sidebar button.logout-btn {
-      background-color: #f44336;
+      background-color: #e74c3c;
     }
 
     .sidebar button:hover {
-      background-color: #388e3c;
+      background-color: #2980b9;
     }
 
     .sidebar button.logout-btn:hover {
-      background-color: #d32f2f;
+      background-color: #c0392b;
     }
 
     .main-content {
@@ -60,47 +68,67 @@
       padding: 20px;
     }
 
+    .main-content h1 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      color: #2c3e50;
+    }
+
     .page-card {
       background-color: #fff;
-      padding: 10px;
-      margin: 5px;
+      padding: 15px;
+      margin: 10px 0;
       border-radius: 5px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .page-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     }
 
     .page-card button {
-      margin: 5px 0;
+      margin-left: 10px;
+      padding: 8px 12px;
       cursor: pointer;
-      background-color: #4caf50;
+      background-color: #3498db;
       color: white;
       border: none;
       border-radius: 5px;
-      padding: 8px;
+      font-size: 0.9em;
       transition: background-color 0.3s;
     }
 
     .page-card button.edit {
-      background-color: #ffa500;
+      background-color: #f39c12;
     }
 
     .page-card button.text {
-      background-color: #2196f3;
+      background-color: #8e44ad;
+    }
+
+    .page-card button.delete {
+      background-color: #e74c3c;
     }
 
     .page-card button:hover {
-      background-color: #388e3c;
+      background-color: #2980b9;
     }
 
     .page-card button.edit:hover {
-      background-color: #e69500;
+      background-color: #d35400;
     }
 
     .page-card button.text:hover {
-      background-color: #1976d2;
+      background-color: #732d91;
+    }
+
+    .page-card button.delete:hover {
+      background-color: #c0392b;
     }
 
     .modal {
@@ -124,11 +152,14 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    textarea {
+    textarea,
+    input {
       width: 100%;
-      height: 200px;
-      margin: 10px 0;
       padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1em;
     }
 
     .modal button {
@@ -141,48 +172,21 @@
     }
 
     .save-btn {
-      background-color: #4caf50;
+      background-color: #2ecc71;
       color: white;
     }
 
     .close-btn {
-      background-color: #f44336;
+      background-color: #e74c3c;
       color: white;
     }
 
     .save-btn:hover {
-      background-color: #388e3c;
+      background-color: #27ae60;
     }
 
     .close-btn:hover {
-      background-color: #d32f2f;
-    }
-
-    .modal-title {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-title-content {
-      background: white;
-      padding: 20px;
-      border-radius: 5px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      background-color: #c0392b;
     }
   </style>
 </head>
@@ -210,8 +214,8 @@
     </div>
   </div>
 
-  <div class="modal-title" id="editTitleModal">
-    <div class="modal-title-content">
+  <div class="modal" id="editTitleModal">
+    <div class="modal-content">
       <h3>Edit Page Title</h3>
       <input type="text" id="title-input" placeholder="Enter new title" />
       <div style="text-align: right;">
@@ -222,107 +226,139 @@
   </div>
 
   <script>
-    const apiUrl = 'https://website2-production-e553.up.railway.app'; // Replace with your Render app URL
+    const apiUrl = 'https://website2-production-e553.up.railway.app'; // Replace with your API URL
 
     let currentPageId = null;
-    function getToken() {
-      return localStorage.getItem('token');
-      console.log(token);
-    }
 
-    async function initializeDashboard() {
-      const token = getToken();
-      if (!token) {
-        alert('You are not authorized. Redirecting to login...');
-        window.location.href = '/index.html';
-        return;
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/index.html';
+    });
+
+    document.getElementById('add-page-btn').addEventListener('click', async () => {
+      const title = prompt('Enter the title of the new page:');
+      if (title) {
+        await addPage(title);
+        await fetchPages();
       }
-      await fetchPages();
+    });
+
+    async function addPage(title) {
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${apiUrl}/add-page`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title }),
+        });
+      } catch (error) {
+        console.error('Error adding page:', error);
+        alert('Error adding page.');
+      }
     }
 
     async function fetchPages() {
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    alert('No token found. Please log in again.');
-    return;
-  }
-
-  try {
-    const response = await fetch(`${apiUrl}/get-pages`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    console.log('Full response:', response);
-
-    // Check content type
-    const contentType = response.headers.get('Content-Type');
-    console.log('Content-Type:', contentType);
-
-    if (!response.ok) {
-      const errorText = await response.text(); // Get error response body
-      if (contentType && contentType.includes('text/html')) {
-        console.error('Unexpected HTML response:', errorText);
-        throw new Error('The server returned an unexpected HTML response. Please try again.');
-      } else {
-        console.error('Error response:', errorText);
-        throw new Error(`HTTP error: ${response.status}`);
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(`${apiUrl}/get-pages`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        const pages = await response.json();
+        renderPageList(pages);
+      } catch (error) {
+        console.error('Error fetching pages:', error);
       }
     }
-
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Unexpected content type:', contentType);
-      console.error('Response body:', text);
-      throw new Error('Expected JSON response but received something else.');
-    }
-
-    const pages = await response.json();
-    renderPageList(pages);
-  } catch (error) {
-    console.error('Error fetching pages:', error);
-
-    if (error.message.includes('401')) {
-      alert('Your session has expired. Please log in again.');
-      localStorage.removeItem('token');
-      window.location.href = '/index.html';
-    } else {
-      alert(`Error: ${error.message}`);
-    }
-  }
-}
-
-
 
     function renderPageList(pages) {
       const pageListDiv = document.getElementById('page-list');
       pageListDiv.innerHTML = '';
+      pages.forEach(page => {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page-card';
+        pageDiv.innerHTML = `
+          <div>${page.title}</div>
+          <div>
+            <button class="edit" onclick="openEditTitleModal('${page._id}', '${page.title}')">Edit Title</button>
+            <button class="text" onclick="openEditTextModal('${page._id}', '${page.content}')">Edit Content</button>
+            <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
+          </div>
+        `;
+        pageListDiv.appendChild(pageDiv);
+      });
+    }
 
-      if (Array.isArray(pages)) {
-        pages.forEach(page => {
-          const pageDiv = document.createElement('div');
-          pageDiv.className = 'page-card';
-          pageDiv.innerHTML = `
-            <div style="flex-grow:1;">${page.title}</div>
-            <button class="edit" onclick="editPageTitle('${page._id}', '${page.title}')">Edit name</button>
-            <button class="text" onclick="openEditTextModal('${page._id}', '${page.content || ''}')">Edit text</button>
-            <button onclick="deletePage('${page._id}')">Delete page</button>
-          `;
-          pageListDiv.appendChild(pageDiv);
+    async function deletePage(pageId) {
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${apiUrl}/delete-page/${pageId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
         });
-      } else {
-        console.error('Fetched pages are not an array:', pages);
-        pageListDiv.innerHTML = '<p>No pages available.</p>';
+        await fetchPages();
+      } catch (error) {
+        console.error('Error deleting page:', error);
       }
     }
 
-    // Remaining functions for modals and CRUD operations stay the same
-    document.addEventListener('DOMContentLoaded', initializeDashboard);
+    async function openEditTitleModal(pageId, currentTitle) {
+      currentPageId = pageId;
+      const titleInput = document.getElementById('title-input');
+      titleInput.value = currentTitle;
+      document.getElementById('editTitleModal').style.display = 'flex';
+    }
+
+    document.getElementById('save-title-btn').addEventListener('click', async () => {
+      const title = document.getElementById('title-input').value;
+      await updatePage(currentPageId, { title });
+      document.getElementById('editTitleModal').style.display = 'none';
+      await fetchPages();
+    });
+
+    async function openEditTextModal(pageId, currentContent) {
+      currentPageId = pageId;
+      const textContent = document.getElementById('text-content');
+      textContent.value = currentContent;
+      document.getElementById('editTextModal').style.display = 'flex';
+    }
+
+    document.getElementById('save-text-btn').addEventListener('click', async () => {
+      const content = document.getElementById('text-content').value;
+      await updatePage(currentPageId, { content });
+      document.getElementById('editTextModal').style.display = 'none';
+      await fetchPages();
+    });
+
+    async function updatePage(pageId, update) {
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${apiUrl}/update-page/${pageId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(update),
+        });
+      } catch (error) {
+        console.error('Error updating page:', error);
+      }
+    }
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+      document.getElementById('editTextModal').style.display = 'none';
+    });
+
+    document.getElementById('close-title-modal-btn').addEventListener('click', () => {
+      document.getElementById('editTitleModal').style.display = 'none';
+    });
+
+    document.addEventListener('DOMContentLoaded', fetchPages);
   </script>
 </body>
 
