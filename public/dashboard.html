@@ -56,12 +56,20 @@
       font-size: 1em;
     }
 
+    .sidebar button.admin-btn {
+      background-color: #8e44ad;
+    }
+
     .sidebar button.logout-btn {
       background-color: #e74c3c;
     }
 
     .sidebar button:hover {
       background-color: #2980b9;
+    }
+
+    .sidebar button.admin-btn:hover {
+      background-color: #732d91;
     }
 
     .sidebar button.logout-btn:hover {
@@ -202,6 +210,7 @@
     <p id="user-info" style="margin: 10px 0; font-size: 1em;"></p>
     <button class="logout-btn" id="logout-btn">Logout</button>
     <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
+    <button class="admin-btn" id="admin-btn" style="display: none;">View Users</button>
   </div>
 
   <div class="main-content">
@@ -258,6 +267,14 @@
       if (userInfo) {
         const userInfoElement = document.getElementById('user-info');
         userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
+
+        if (userInfo.isAdmin) {
+          const adminBtn = document.getElementById('admin-btn');
+          adminBtn.style.display = 'block';
+          adminBtn.addEventListener('click', () => {
+            window.location.href = '/get-users.html';
+          });
+        }
       } else {
         alert('Invalid token. Please log in again.');
         localStorage.removeItem('token');
@@ -298,125 +315,10 @@
       });
     }
 
-    async function deletePage(pageId) {
-      const token = localStorage.getItem('token');
-      try {
-        await fetch(`${apiUrl}/delete-page/${pageId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        await fetchPages();
-      } catch (error) {
-        console.error('Error deleting page:', error);
-      }
-    }
-
-    async function openEditTitleModal(pageId, currentTitle) {
-      currentPageId = pageId;
-      const titleInput = document.getElementById('title-input');
-      titleInput.value = currentTitle;
-      document.getElementById('editTitleModal').style.display = 'flex';
-    }
-
-    async function openEditTextModal(pageId, currentContent) {
-      currentPageId = pageId;
-      const textContent = document.getElementById('text-content');
-      textContent.value = currentContent;
-      document.getElementById('editTextModal').style.display = 'flex';
-    }
-
-    async function updatePage(pageId, update) {
-      const token = localStorage.getItem('token');
-      const { title, content } = update;
-
-      if (!title || !content) {
-        alert('Both title and content are required');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ title, content }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          alert(`Error: ${error.message}`);
-          return;
-        }
-
-        fetchPages();
-      } catch (error) {
-        console.error('Error updating page:', error);
-      }
-    }
-
-    document.getElementById('save-title-btn').addEventListener('click', async () => {
-      const title = document.getElementById('title-input').value;
-      const content = document.getElementById('text-content').value;
-      await updatePage(currentPageId, { title, content });
-      document.getElementById('editTitleModal').style.display = 'none';
-    });
-
-    document.getElementById('save-text-btn').addEventListener('click', async () => {
-      const content = document.getElementById('text-content').value;
-      const title = document.getElementById('title-input').value;
-      await updatePage(currentPageId, { title, content });
-      document.getElementById('editTextModal').style.display = 'none';
-    });
-
-    document.getElementById('close-modal-btn').addEventListener('click', () => {
-      document.getElementById('editTextModal').style.display = 'none';
-    });
-
-    document.getElementById('close-title-modal-btn').addEventListener('click', () => {
-      document.getElementById('editTitleModal').style.display = 'none';
-    });
-
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = '/index.html';
     });
-
-    document.getElementById('add-page-btn').addEventListener('click', async () => {
-      const title = prompt('Enter the title of the new page:');
-      if (title) {
-        await addPage(title);
-        await fetchPages();
-      }
-    });
-
-    async function addPage(title) {
-      const token = localStorage.getItem('token');
-      const content = "This is your new page content.";
-
-      try {
-        const response = await fetch(`${apiUrl}/add-page`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ title, content }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          alert(`Error: ${error.message}`);
-          return;
-        }
-
-        fetchPages();
-      } catch (error) {
-        console.error('Error adding page:', error);
-        alert('Error adding page.');
-      }
-    }
 
     document.addEventListener('DOMContentLoaded', () => {
       displayUserInfo();
