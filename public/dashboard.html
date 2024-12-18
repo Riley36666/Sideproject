@@ -226,8 +226,8 @@
   </div>
 
   <script>
-    const apiUrl = 'https://website2-production-e553.up.railway.app'; // Replace with your API URL
-    console.log(window.location.origin);
+    const apiUrl = window.location.origin; // Replace with your API URL
+
     let currentPageId = null;
 
     document.getElementById('logout-btn').addEventListener('click', () => {
@@ -244,32 +244,32 @@
     });
 
     async function addPage(title) {
-  const token = localStorage.getItem('token');
-  const content = "This is your new page content.";  // You can provide a default content or prompt the user for it.
-  
-  try {
-    const response = await fetch(`${apiUrl}/add-page`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title, content }),
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      alert(`Error: ${error.message}`);
-      return;
-    }
+      const token = localStorage.getItem('token');
+      const content = "This is your new page content.";  // You can provide a default content or prompt the user for it.
+      
+      try {
+        const response = await fetch(`${apiUrl}/add-page`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, content }),
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+          return;
+        }
 
-    alert('Page added successfully!');
-    fetchPages();  // Refresh the page list after adding a new page
-  } catch (error) {
-    console.error('Error adding page:', error);
-    alert('Error adding page.');
-  }
-}
+        alert('Page added successfully!');
+        fetchPages();  // Refresh the page list after adding a new page
+      } catch (error) {
+        console.error('Error adding page:', error);
+        alert('Error adding page.');
+      }
+    }
 
 
     async function fetchPages() {

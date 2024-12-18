@@ -181,6 +181,7 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // Delete Page
 app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
