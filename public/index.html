@@ -111,10 +111,17 @@
     }
 
     #login-message,
-    #register-message {
+    #register-message,
+    #reset-message {
       color: #e74c3c;
       font-size: 14px;
       margin-top: 10px;
+      text-align: center;
+    }
+
+    .reset-section {
+      display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -137,6 +144,7 @@
         <p id="login-message"></p>
       </form>
       <button class="switch-button" onclick="showRegister()">New here? Create an account</button>
+      <button class="switch-button" onclick="showReset()">Forgot Password?</button>
     </div>
 
     <!-- Register Form -->
@@ -160,45 +168,67 @@
       </form>
       <button class="switch-button" onclick="showLogin()">Already have an account? Log in</button>
     </div>
+
+    <!-- Reset Password Form -->
+    <div id="reset-section" class="reset-section">
+      <h1 class="form-header">Reset Password</h1>
+      <form id="reset-form">
+        <div class="login__field">
+          <input type="email" id="reset-email" class="login__input" placeholder="Email" required autocomplete="email" />
+          <i class="fas fa-envelope icon"></i>
+        </div>
+        <button type="submit">Reset Password</button>
+        <p id="reset-message"></p>
+      </form>
+      <button class="switch-button" onclick="showLogin()">Back to Login</button>
+    </div>
   </div>
 
   <script>
     const API_URL = 'https://website2-production-e553.up.railway.app';
-  
-    // Toggle between Login and Register forms
+
+    // Toggle between Login, Register, and Reset Password forms
     function showLogin() {
       document.getElementById('login-section').style.display = 'block';
       document.getElementById('register-section').style.display = 'none';
+      document.getElementById('reset-section').style.display = 'none';
     }
-  
+
     function showRegister() {
       document.getElementById('login-section').style.display = 'none';
       document.getElementById('register-section').style.display = 'block';
+      document.getElementById('reset-section').style.display = 'none';
     }
-  
+
+    function showReset() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('register-section').style.display = 'none';
+      document.getElementById('reset-section').style.display = 'block';
+    }
+
     async function handleSubmit(event, formType) {
       event.preventDefault();
       const button = event.target.querySelector('button');
       button.disabled = true;
       button.textContent = 'Processing...';
-  
-      const username = document.getElementById(`${formType}-username`).value;
-      const password = document.getElementById(`${formType}-password`).value;
-      const email = formType === 'register' ? document.getElementById('register-email').value : null;
-  
-      const endpoint = formType === 'login' ? '/login' : '/register';
-      const body = formType === 'login' ? { username, password } : { username, password, email };
-  
+
+      const username = formType === 'login' || formType === 'reset' ? document.getElementById('login-username').value : null;
+      const password = formType === 'login' ? document.getElementById('login-password').value : formType === 'register' ? document.getElementById('register-password').value : null;
+      const email = formType === 'login' || formType === 'register' ? document.getElementById('register-email').value : document.getElementById('reset-email').value;
+
+      const endpoint = formType === 'login' ? '/login' : formType === 'register' ? '/register' : '/reset-password';
+      const body = formType === 'login' ? { username, password } : formType === 'register' ? { username, password, email } : { email };
+
       try {
         const response = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-  
+
         const messageElement = document.getElementById(`${formType}-message`);
         let data = {};
-  
+
         // Check if the response is valid JSON
         try {
           data = await response.json();
@@ -206,13 +236,15 @@
           console.error('Failed to parse JSON:', err);
           data.message = 'Server returned an invalid response';
         }
-  
+
         if (response.ok) {
           if (formType === 'login') {
             localStorage.setItem('token', data.token); // Save the token
             window.location.href = '/dashboard.html'; // Redirect after successful login
-          } else {
+          } else if (formType === 'register') {
             showLogin(); // Switch to login form after successful registration
+          } else if (formType === 'reset') {
+            messageElement.textContent = 'Password reset link has been sent to your email';
           }
         } else {
           messageElement.textContent = data.message || 'Something went wrong';
@@ -222,14 +254,15 @@
         document.getElementById(`${formType}-message`).textContent = 'Network error. Please try again later.';
       } finally {
         button.disabled = false;
-        button.textContent = formType === 'login' ? 'Log In' : 'Sign Up';
+        button.textContent = formType === 'login' ? 'Log In' : formType === 'register' ? 'Sign Up' : 'Reset Password';
       }
     }
-  
+
     document.getElementById('login-form').addEventListener('submit', (event) => handleSubmit(event, 'login'));
     document.getElementById('register-form').addEventListener('submit', (event) => handleSubmit(event, 'register'));
+    document.getElementById('reset-form').addEventListener('submit', (event) => handleSubmit(event, 'reset'));
   </script>
-  
+
 </body>
 
 </html>
