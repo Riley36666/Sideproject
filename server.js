@@ -137,24 +137,36 @@ app.post('/login', loginLimiter, async (req, res) => {
 app.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
 
+  // Ensure all required fields are present
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
+    // Check if username or email already exists
     if (await User.findOne({ $or: [{ username }, { email }] })) {
       return res.status(409).json({ message: 'Username or email already exists' });
     }
 
+    // Automatically set isAdmin if the username is "admin"
+    const isAdmin = username.toLowerCase() === 'admin';
 
+    // Hash the password and save the user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hashedPassword, email, isAdmin });
+    const newUser = new User({
+      username,
+      password: hashedPassword,
+      email,
+      isAdmin,
+    });
+
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully', isAdmin });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 // Get All Users (for admin)
 app.get('/get-users', authenticateToken, async (req, res) => {
