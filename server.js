@@ -68,7 +68,32 @@ const pageSchema = new mongoose.Schema({
 const Page = mongoose.model('Page', pageSchema);
 
 // Token Authentication Middleware
+// Token Authentication Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
+  console.log('Received Authorization Header:', authHeader); // Add logging
+
+  if (!token) {
+    return res.status(401)
+              .contentType('application/json')
+              .json({ message: 'Authorization token missing' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.error('Token verification error:', err); // Add error logging
+      const errorMessage = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
+      return res.status(401)
+                .contentType('application/json')
+                .json({ message: errorMessage });
+    }
+
+    req.user = user;
+    next();
+  });
+}
 
 // Serve static files
 if (process.env.NODE_ENV === 'production') {
@@ -172,31 +197,7 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
 });
 
 // Enhance the authenticateToken middleware for better debugging
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  console.log('Received Authorization Header:', authHeader); // Add logging
-
-  if (!token) {
-    return res.status(401)
-              .contentType('application/json')
-              .json({ message: 'Authorization token missing' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      console.error('Token verification error:', err); // Add error logging
-      const errorMessage = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
-      return res.status(401)
-                .contentType('application/json')
-                .json({ message: errorMessage });
-    }
-
-    req.user = user;
-    next();
-  });
-}
 
 // Global Error Handler
 app.use((err, req, res, next) => {
