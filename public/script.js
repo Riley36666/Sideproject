@@ -1,46 +1,58 @@
-// Attach an event listener to the login form
 document.getElementById('login-form').addEventListener('submit', async (event) => {
-  event.preventDefault(); // Prevent the default form submission behavior
-
-  // Extract username and password values from the form
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+  event.preventDefault();
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+  const messageElement = document.getElementById('login-message');
 
   try {
-    // Send a POST request to the /login endpoint
-    const response = await fetch('/login', {
+    const response = await fetch('https://website2-production-e553.up.railway.app/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }), // Send credentials in JSON format
+      body: JSON.stringify({ username, password }),
     });
 
-    const messageElement = document.getElementById('message'); // For showing feedback messages
+    // Log full response details for debugging
+    console.log('Login Response Status:', response.status);
+    console.log('Login Response Headers:', Object.fromEntries(response.headers.entries()));
+
+    // Always try to parse as JSON, with error catching
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', parseError);
+      
+      // If JSON parsing fails, try to get text to see what was returned
+      const text = await response.text();
+      console.error('Response text:', text);
+      
+      throw new Error('Invalid server response');
+    }
 
     if (response.ok) {
-      // If login is successful, get the server's response
-      const data = await response.json();
-      console.log('Login successful:', data); // Debug log
+      // Ensure token is saved
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('Token saved successfully');
+      } else {
+        throw new Error('No token received');
+      }
 
-      // Show success message to the user
-      messageElement.textContent = data.message;
+      messageElement.textContent = 'Login successful!';
       messageElement.style.color = 'green';
-
-      // Redirect to the dashboard after a brief delay
+      
+      // Redirect with a slight delay
       setTimeout(() => {
-        window.location.href = '/dashboard.html'; // Redirect to /dashboard.html
+        window.location.href = '/dashboard.html';
       }, 200);
     } else {
-      // If login fails, show an error message
-      const errorText = await response.text();
-      console.error('Login failed:', errorText); // Debug log
-      messageElement.textContent = errorText;
+      // Handle login failure
+      messageElement.textContent = data.message || 'Login failed';
       messageElement.style.color = 'red';
     }
   } catch (error) {
-    // Handle any network or unexpected errors
-    console.error('Error during login:', error);
-    const messageElement = document.getElementById('message');
-    messageElement.textContent = 'An error occurred. Please try again later.';
+    console.error('Login error:', error);
+    messageElement.textContent = 'Network error. Please try again.';
     messageElement.style.color = 'red';
   }
 });
