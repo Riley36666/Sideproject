@@ -352,6 +352,14 @@
   // Log the data being sent to the server for debugging
   console.log('Sending update request:', { pageId, update });
 
+  // Ensure that both title and content are present in the update object
+  const { title, content } = update;
+  
+  if (!title || !content) {
+    alert('Both title and content are required');
+    return;
+  }
+
   try {
     const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
       method: 'PUT',
@@ -359,7 +367,7 @@
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(update),
+      body: JSON.stringify({ title, content }),  // Send both title and content to the backend
     });
 
     // Check if the response is ok (status code 200-299)
@@ -377,6 +385,7 @@
     console.error('Error updating page:', error); // Log the error in case of network failure
   }
 }
+
 
 
 
