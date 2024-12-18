@@ -347,20 +347,38 @@
     });
 
     async function updatePage(pageId, update) {
-      const token = localStorage.getItem('token');
-      try {
-        await fetch(`${apiUrl}/update-page/${pageId}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(update),
-        });
-      } catch (error) {
-        console.error('Error updating page:', error);
-      }
+  const token = localStorage.getItem('token');
+
+  // Log the data being sent to the server for debugging
+  console.log('Sending update request:', { pageId, update });
+
+  try {
+    const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(update),
+    });
+
+    // Check if the response is ok (status code 200-299)
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('API error:', error); // Log the error response from the API
+      alert(`Error: ${error.message}`); // Alert the user with the error message
+      return;
     }
+
+    console.log('Page updated successfully');
+    // Optionally refresh pages or handle post-update logic here
+
+  } catch (error) {
+    console.error('Error updating page:', error); // Log the error in case of network failure
+  }
+}
+
+
 
     document.getElementById('close-modal-btn').addEventListener('click', () => {
       document.getElementById('editTextModal').style.display = 'none';
