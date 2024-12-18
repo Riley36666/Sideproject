@@ -224,7 +224,7 @@ app.post('/add-page', authenticateToken, async (req, res) => {
   }
 });
 
-// Serve static files in production
+// Serve static files in production dd
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
 
