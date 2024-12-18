@@ -256,31 +256,34 @@
     }
 
     function displayUserInfo() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('You are not logged in.');
-        window.location.href = '/index.html';
-        return;
-      }
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You are not logged in.');
+    window.location.href = '/index.html';
+    return;
+  }
 
-      const userInfo = decodeToken(token);
-      if (userInfo) {
-        const userInfoElement = document.getElementById('user-info');
-        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
+  const userInfo = decodeToken(token);
+  console.log('Decoded User Info:', userInfo); // Debug log
 
-        if (userInfo.isAdmin) {
-          const adminBtn = document.getElementById('admin-btn');
-          adminBtn.style.display = 'block';
-          adminBtn.addEventListener('click', () => {
-            window.location.href = '/get-users.html';
-          });
-        }
-      } else {
-        alert('Invalid token. Please log in again.');
-        localStorage.removeItem('token');
-        window.location.href = '/index.html';
-      }
+  if (userInfo) {
+    const userInfoElement = document.getElementById('user-info');
+    userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
+
+    if (userInfo.isAdmin) {
+      const adminBtn = document.getElementById('admin-btn');
+      adminBtn.style.display = 'block';
+      adminBtn.addEventListener('click', () => {
+        window.location.href = '/get-users.html';
+      });
     }
+  } else {
+    alert('Invalid token. Please log in again.');
+    localStorage.removeItem('token');
+    window.location.href = '/index.html';
+  }
+}
+
 
     async function fetchPages() {
       const token = localStorage.getItem('token');
