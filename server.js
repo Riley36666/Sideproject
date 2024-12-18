@@ -49,6 +49,7 @@ const loginLimiter = rateLimit({
   max: 5,
   message: 'Too many login attempts from this IP, please try again later.',
 });
+
 // Create a transport for sending emails
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -57,13 +58,17 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,   // Replace with your email password or app-specific password
   },
 });
+
 // User Schema and Model
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  isAdmin: { type: Boolean, default: false }, // Admin flag
   createdAt: { type: Date, default: Date.now },
+  lastLogin: { type: Date, default: null }, // Track last login time
 });
+
 userSchema.index({ username: 1 });
 userSchema.index({ email: 1 });
 const User = mongoose.model('User', userSchema);
@@ -102,6 +107,8 @@ function authenticateToken(req, res, next) {
 }
 
 // API Routes
+
+// Login Route
 app.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
@@ -115,6 +122,10 @@ app.post('/login', loginLimiter, async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
+    // Update last login time
+    user.lastLogin = new Date();
+    await user.save();
+
     const token = jwt.sign({ id: user._id, username: user.username }, jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
@@ -122,6 +133,7 @@ app.post('/login', loginLimiter, async (req, res) => {
   }
 });
 
+// Register Route
 app.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
 
@@ -134,8 +146,10 @@ app.post('/register', async (req, res) => {
       return res.status(409).json({ message: 'Username or email already exists' });
     }
 
+    const isAdmin = username === 'admin'; // For example, if the username is 'admin', make them an admin
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hashedPassword, email });
+    const newUser = new User({ username, password: hashedPassword, email, isAdmin });
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
@@ -143,6 +157,22 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Get All Users (for admin)
+app.get('/get-users', authenticateToken, async (req, res) => {
+  try {
+    // Only allow admin users to access this route
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const users = await User.find({}, 'username email isAdmin lastLogin createdAt');
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get Pages Route
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
@@ -162,7 +192,8 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-// Update Page
+
+// Update Page Route
 app.put('/update-page/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
@@ -173,9 +204,9 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
 
   try {
     const updatedPage = await Page.findOneAndUpdate(
-      { _id: id, userId: req.user.id }, // Match by page ID and authenticated user ID
-      { title, content }, // Update fields
-      { new: true } // Return the updated document
+      { _id: id, userId: req.user.id },
+      { title, content },
+      { new: true }
     );
 
     if (!updatedPage) {
@@ -184,19 +215,18 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
 
     res.status(200).json({ message: 'Page updated successfully', updatedPage });
   } catch (error) {
-    console.error('Error updating page:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Delete Page
+// Delete Page Route
 app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
     const deletedPage = await Page.findOneAndDelete({
       _id: id,
-      userId: req.user.id, // Ensure only the owner can delete their page
+      userId: req.user.id,
     });
 
     if (!deletedPage) {
@@ -205,11 +235,11 @@ app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
 
     res.status(200).json({ message: 'Page deleted successfully' });
   } catch (error) {
-    console.error('Error deleting page:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-// Add New Page
+
+// Add New Page Route
 app.post('/add-page', authenticateToken, async (req, res) => {
   const { title, content } = req.body;
 
@@ -227,12 +257,11 @@ app.post('/add-page', authenticateToken, async (req, res) => {
     await newPage.save();
     res.status(201).json({ message: 'Page added successfully', page: newPage });
   } catch (error) {
-    console.error('Error adding page:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Serve static files in production dd
+// Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
 
