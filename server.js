@@ -155,6 +155,74 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Update Page
+app.put('/update-page/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+
+  try {
+    const updatedPage = await Page.findOneAndUpdate(
+      { _id: id, userId: req.user.id }, // Match by page ID and authenticated user ID
+      { title, content }, // Update fields
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPage) {
+      return res.status(404).json({ message: 'Page not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Page updated successfully', updatedPage });
+  } catch (error) {
+    console.error('Error updating page:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Delete Page
+app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedPage = await Page.findOneAndDelete({
+      _id: id,
+      userId: req.user.id, // Ensure only the owner can delete their page
+    });
+
+    if (!deletedPage) {
+      return res.status(404).json({ message: 'Page not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Page deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting page:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Add New Page
+app.post('/add-page', authenticateToken, async (req, res) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+
+  try {
+    const newPage = new Page({
+      title,
+      content,
+      userId: req.user.id,
+    });
+
+    await newPage.save();
+    res.status(201).json({ message: 'Page added successfully', page: newPage });
+  } catch (error) {
+    console.error('Error adding page:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
