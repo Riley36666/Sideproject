@@ -172,9 +172,9 @@ if (process.env.NODE_ENV === 'production') {
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
-
+    
     // Explicitly set JSON content type
-    res.type('json');
+    res.type('application/json');
     
     if (!pages.length) {
       const defaultPage = new Page({
