@@ -49,7 +49,14 @@ const loginLimiter = rateLimit({
   max: 5,
   message: 'Too many login attempts from this IP, please try again later.',
 });
-
+// Create a transport for sending emails
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,  // Replace with your email
+    pass: process.env.EMAIL_PASS,   // Replace with your email password or app-specific password
+  },
+});
 // User Schema and Model
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
