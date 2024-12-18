@@ -227,51 +227,9 @@
 
   <script>
     const apiUrl = window.location.origin; // Replace with your API URL
-
     let currentPageId = null;
 
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = '/index.html';
-    });
-
-    document.getElementById('add-page-btn').addEventListener('click', async () => {
-      const title = prompt('Enter the title of the new page:');
-      if (title) {
-        await addPage(title);
-        await fetchPages();
-      }
-    });
-
-    async function addPage(title) {
-      const token = localStorage.getItem('token');
-      const content = "This is your new page content.";  // You can provide a default content or prompt the user for it.
-      
-      try {
-        const response = await fetch(`${apiUrl}/add-page`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ title, content }),
-        });
-        
-        if (!response.ok) {
-          const error = await response.json();
-          alert(`Error: ${error.message}`);
-          return;
-        }
-
-        alert('Page added successfully!');
-        fetchPages();  // Refresh the page list after adding a new page
-      } catch (error) {
-        console.error('Error adding page:', error);
-        alert('Error adding page.');
-      }
-    }
-
-
+    // Function to fetch pages and render them
     async function fetchPages() {
       const token = localStorage.getItem('token');
       try {
@@ -287,6 +245,7 @@
       }
     }
 
+    // Function to render page list with edit and delete buttons
     function renderPageList(pages) {
       const pageListDiv = document.getElementById('page-list');
       pageListDiv.innerHTML = '';
@@ -305,6 +264,7 @@
       });
     }
 
+    // Function to delete page
     async function deletePage(pageId) {
       const token = localStorage.getItem('token');
       try {
@@ -312,12 +272,13 @@
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        await fetchPages();
+        await fetchPages(); // Refresh the page list after deletion
       } catch (error) {
         console.error('Error deleting page:', error);
       }
     }
 
+    // Function to open the "Edit Title" modal
     async function openEditTitleModal(pageId, currentTitle) {
       currentPageId = pageId;
       const titleInput = document.getElementById('title-input');
@@ -325,13 +286,7 @@
       document.getElementById('editTitleModal').style.display = 'flex';
     }
 
-    document.getElementById('save-title-btn').addEventListener('click', async () => {
-      const title = document.getElementById('title-input').value;
-      await updatePage(currentPageId, { title });
-      document.getElementById('editTitleModal').style.display = 'none';
-      await fetchPages();
-    });
-
+    // Function to open the "Edit Content" modal
     async function openEditTextModal(pageId, currentContent) {
       currentPageId = pageId;
       const textContent = document.getElementById('text-content');
@@ -339,56 +294,58 @@
       document.getElementById('editTextModal').style.display = 'flex';
     }
 
-    document.getElementById('save-text-btn').addEventListener('click', async () => {
-      const content = document.getElementById('text-content').value;
-      await updatePage(currentPageId, { content });
-      document.getElementById('editTextModal').style.display = 'none';
-      await fetchPages();
-    });
-
+    // Function to update the page with new title and content
     async function updatePage(pageId, update) {
-  const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token');
+      const { title, content } = update;
 
-  // Log the data being sent to the server for debugging
-  console.log('Sending update request:', { pageId, update });
+      // Ensure that both title and content are not empty
+      if (!title || !content) {
+        alert('Both title and content are required');
+        return;
+      }
 
-  // Ensure that both title and content are present in the update object
-  const { title, content } = update;
-  
-  if (!title || !content) {
-    alert('Both title and content are required');
-    return;
-  }
+      try {
+        const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, content }),
+        });
 
-  try {
-    const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title, content }),  // Send both title and content to the backend
-    });
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+          return;
+        }
 
-    // Check if the response is ok (status code 200-299)
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('API error:', error); // Log the error response from the API
-      alert(`Error: ${error.message}`); // Alert the user with the error message
-      return;
+        alert('Page updated successfully!');
+        fetchPages(); // Refresh the page list after update
+
+      } catch (error) {
+        console.error('Error updating page:', error);
+      }
     }
 
-    console.log('Page updated successfully');
-    // Optionally refresh pages or handle post-update logic here
+    // Event listener for saving the updated title
+    document.getElementById('save-title-btn').addEventListener('click', async () => {
+      const title = document.getElementById('title-input').value;
+      const content = document.getElementById('text-content').value; // Use the current content
+      await updatePage(currentPageId, { title, content });
+      document.getElementById('editTitleModal').style.display = 'none';
+    });
 
-  } catch (error) {
-    console.error('Error updating page:', error); // Log the error in case of network failure
-  }
-}
+    // Event listener for saving the updated content
+    document.getElementById('save-text-btn').addEventListener('click', async () => {
+      const content = document.getElementById('text-content').value;
+      const title = document.getElementById('title-input').value; // Use the current title
+      await updatePage(currentPageId, { title, content });
+      document.getElementById('editTextModal').style.display = 'none';
+    });
 
-
-
-
+    // Close modals when user clicks "Close"
     document.getElementById('close-modal-btn').addEventListener('click', () => {
       document.getElementById('editTextModal').style.display = 'none';
     });
@@ -397,6 +354,51 @@
       document.getElementById('editTitleModal').style.display = 'none';
     });
 
+    // Event listener for logging out
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/index.html';
+    });
+
+    // Event listener for adding a new page
+    document.getElementById('add-page-btn').addEventListener('click', async () => {
+      const title = prompt('Enter the title of the new page:');
+      if (title) {
+        await addPage(title);
+        await fetchPages();
+      }
+    });
+
+    // Function to add a new page
+    async function addPage(title) {
+      const token = localStorage.getItem('token');
+      const content = "This is your new page content.";  // Default content
+
+      try {
+        const response = await fetch(`${apiUrl}/add-page`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, content }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+          return;
+        }
+
+        alert('Page added successfully!');
+        fetchPages(); // Refresh the page list after adding the new page
+      } catch (error) {
+        console.error('Error adding page:', error);
+        alert('Error adding page.');
+      }
+    }
+
+    // Fetch the pages when the page is loaded
     document.addEventListener('DOMContentLoaded', fetchPages);
   </script>
 </body>
