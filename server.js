@@ -146,7 +146,6 @@ app.post('/register', async (req, res) => {
       return res.status(409).json({ message: 'Username or email already exists' });
     }
 
-    const isAdmin = username === 'admin'; // For example, if the username is 'admin', make them an admin
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, password: hashedPassword, email, isAdmin });
@@ -176,7 +175,11 @@ app.get('/get-users', authenticateToken, async (req, res) => {
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
-
+    if (user.isAdmin) {
+      console.log('Admin accessing pages');
+    } else {
+      console.log('User accessing pages');
+    }
     if (!pages.length) {
       const defaultPage = new Page({
         title: 'Welcome Page',
