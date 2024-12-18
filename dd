@@ -38,11 +38,6 @@
       font-size: 1.5em;
     }
 
-    .sidebar p {
-      font-size: 1em;
-      margin: 10px 0;
-    }
-
     .sidebar button {
       width: 90%;
       margin: 10px 0;
@@ -199,7 +194,6 @@
 <body>
   <div class="sidebar">
     <h2>Dashboard</h2>
-    <p id="user-info" style="margin: 10px 0; font-size: 1em;"></p>
     <button class="logout-btn" id="logout-btn">Logout</button>
     <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
   </div>
@@ -232,39 +226,10 @@
   </div>
 
   <script>
-    const apiUrl = window.location.origin;
+    const apiUrl = window.location.origin; // Replace with your API URL
     let currentPageId = null;
 
-    function decodeToken(token) {
-      try {
-        const base64Payload = token.split('.')[1];
-        const payload = atob(base64Payload);
-        return JSON.parse(payload);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-      }
-    }
-
-    function displayUserInfo() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('You are not logged in.');
-        window.location.href = '/index.html';
-        return;
-      }
-
-      const userInfo = decodeToken(token);
-      if (userInfo) {
-        const userInfoElement = document.getElementById('user-info');
-        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
-      } else {
-        alert('Invalid token. Please log in again.');
-        localStorage.removeItem('token');
-        window.location.href = '/index.html';
-      }
-    }
-
+    // Function to fetch pages and render them
     async function fetchPages() {
       const token = localStorage.getItem('token');
       try {
@@ -280,6 +245,7 @@
       }
     }
 
+    // Function to render page list with edit and delete buttons
     function renderPageList(pages) {
       const pageListDiv = document.getElementById('page-list');
       pageListDiv.innerHTML = '';
@@ -298,6 +264,7 @@
       });
     }
 
+    // Function to delete page
     async function deletePage(pageId) {
       const token = localStorage.getItem('token');
       try {
@@ -305,12 +272,13 @@
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        await fetchPages();
+        await fetchPages(); // Refresh the page list after deletion
       } catch (error) {
         console.error('Error deleting page:', error);
       }
     }
 
+    // Function to open the "Edit Title" modal
     async function openEditTitleModal(pageId, currentTitle) {
       currentPageId = pageId;
       const titleInput = document.getElementById('title-input');
@@ -318,6 +286,7 @@
       document.getElementById('editTitleModal').style.display = 'flex';
     }
 
+    // Function to open the "Edit Content" modal
     async function openEditTextModal(pageId, currentContent) {
       currentPageId = pageId;
       const textContent = document.getElementById('text-content');
@@ -325,10 +294,12 @@
       document.getElementById('editTextModal').style.display = 'flex';
     }
 
+    // Function to update the page with new title and content
     async function updatePage(pageId, update) {
       const token = localStorage.getItem('token');
       const { title, content } = update;
 
+      // Ensure that both title and content are not empty
       if (!title || !content) {
         alert('Both title and content are required');
         return;
@@ -350,26 +321,30 @@
           return;
         }
 
-        fetchPages();
+        fetchPages(); // Refresh the page list after update
+
       } catch (error) {
         console.error('Error updating page:', error);
       }
     }
 
+    // Event listener for saving the updated title
     document.getElementById('save-title-btn').addEventListener('click', async () => {
       const title = document.getElementById('title-input').value;
-      const content = document.getElementById('text-content').value;
+      const content = document.getElementById('text-content').value; // Use the current content
       await updatePage(currentPageId, { title, content });
       document.getElementById('editTitleModal').style.display = 'none';
     });
 
+    // Event listener for saving the updated content
     document.getElementById('save-text-btn').addEventListener('click', async () => {
       const content = document.getElementById('text-content').value;
-      const title = document.getElementById('title-input').value;
+      const title = document.getElementById('title-input').value; // Use the current title
       await updatePage(currentPageId, { title, content });
       document.getElementById('editTextModal').style.display = 'none';
     });
 
+    // Close modals when user clicks "Close"
     document.getElementById('close-modal-btn').addEventListener('click', () => {
       document.getElementById('editTextModal').style.display = 'none';
     });
@@ -378,11 +353,13 @@
       document.getElementById('editTitleModal').style.display = 'none';
     });
 
+    // Event listener for logging out
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = '/index.html';
     });
 
+    // Event listener for adding a new page
     document.getElementById('add-page-btn').addEventListener('click', async () => {
       const title = prompt('Enter the title of the new page:');
       if (title) {
@@ -391,9 +368,10 @@
       }
     });
 
+    // Function to add a new page
     async function addPage(title) {
       const token = localStorage.getItem('token');
-      const content = "This is your new page content.";
+      const content = "This is your new page content.";  // Default content
 
       try {
         const response = await fetch(`${apiUrl}/add-page`, {
@@ -411,17 +389,16 @@
           return;
         }
 
-        fetchPages();
+
+        fetchPages(); // Refresh the page list after adding the new page
       } catch (error) {
         console.error('Error adding page:', error);
         alert('Error adding page.');
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      displayUserInfo();
-      fetchPages();
-    });
+    // Fetch the pages when the page is loaded
+    document.addEventListener('DOMContentLoaded', fetchPages);
   </script>
 </body>
 
