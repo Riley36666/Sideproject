@@ -172,6 +172,7 @@ if (process.env.NODE_ENV === 'production') {
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
+    console.log("user id", req.user.id);
     
     // Explicitly set JSON content type
     res.type('application/json');
