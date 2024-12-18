@@ -175,11 +175,7 @@ app.get('/get-users', authenticateToken, async (req, res) => {
 app.get('/get-pages', authenticateToken, async (req, res) => {
   try {
     const pages = await Page.find({ userId: req.user.id });
-    if (user.isAdmin) {
-      console.log('Admin accessing pages');
-    } else {
-      console.log('User accessing pages');
-    }
+    console.log(user.isAdmin);
     if (!pages.length) {
       const defaultPage = new Page({
         title: 'Welcome Page',
