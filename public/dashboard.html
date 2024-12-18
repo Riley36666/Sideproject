@@ -256,27 +256,45 @@
     }
 
     function displayUserInfo() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('You are not logged in.');
-    window.location.href = '/index.html';
-    return;
-  }
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You are not logged in.');
+        window.location.href = '/index.html';
+        return;
+      }
 
-  const userInfo = decodeToken(token);
-  console.log('Decoded User Info:', userInfo); // Debug log
+      const userInfo = decodeToken(token);
+      console.log('Decoded User Info:', userInfo); // Debug log
 
-  if (userInfo) {
-    const userInfoElement = document.getElementById('user-info');
-    userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
+      if (userInfo) {
+        const userInfoElement = document.getElementById('user-info');
+        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
 
-    if (userInfo.isAdmin) {
-      const adminBtn = document.getElementById('admin-btn');
-      adminBtn.style.display = 'block';
-      adminBtn.addEventListener('click', () => {
-        window.location.href = '/get-users';
-      });
-    }
+        if (userInfo.isAdmin) {
+          const adminBtn = document.getElementById('admin-btn');
+          adminBtn.style.display = 'block';
+          adminBtn.addEventListener('click', async () => {
+            const token = localStorage.getItem('token');
+            try {
+              const response = await fetch(`${apiUrl}/get-users`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              if (response.ok) {
+                const users = await response.json();
+                console.log('Users:', users); // Handle the users' data here
+              } else {
+                const error = await response.json();
+                console.error('Error:', error.message);
+                alert(`Error: ${error.message}`);
+              }
+            } catch (err) {
+              console.error('Error fetching users:', err);
+            }
+          });
+        }
   } else {
     alert('Invalid token. Please log in again.');
     localStorage.removeItem('token');
