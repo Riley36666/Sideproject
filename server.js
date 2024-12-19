@@ -279,6 +279,55 @@ app.post('/generate-user-token', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Delete User Route
+app.delete('/delete-user/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Only admins can delete users
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully', user: deletedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+app.put('/update-role/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { isAdmin, isOwner } = req.body; // Accept `isAdmin` and `isOwner` in the request body
+
+  try {
+    // Check if the request is from an admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the roles if values are provided
+    if (typeof isAdmin !== 'undefined') user.isAdmin = isAdmin;
+    if (typeof isOwner !== 'undefined') user.isOwner = isOwner;
+
+    // Save the changes to the database
+    await user.save();
+
+    res.status(200).json({ message: 'User role updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Add New Page Route
 app.post('/add-page', authenticateToken, async (req, res) => {
