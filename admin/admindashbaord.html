@@ -219,7 +219,8 @@
 
             const data = await response.json();
             localStorage.setItem('token', data.token); // Replace admin token with user token
-            console.log(token);
+            const userInfo = decodeToken(token);
+            console.log('User info:', userInfo); // Handle user information here if needed
             alert('Logged in as user. Redirecting...');
             window.location.href = '/dashboard.html';
         } catch (error) {
