@@ -279,7 +279,7 @@
 
   if (userInfo) {
     const userInfoElement = document.getElementById('user-info');
-    const role = userInfo.isOwner ? 'Owner' : (userInfo.isAdmin ? 'Admin' : 'User');
+    const role = userInfo.whatrole ? 'Owner' : (userInfo.isAdmin ? 'Admin' : 'User');
     userInfoElement.textContent = `Logged in as: ${userInfo.username} (${role})`;  
 
     if (userInfo.isAdmin) {
