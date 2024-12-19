@@ -231,7 +231,6 @@
             localStorage.setItem('token', data.token); // Replace admin token with user token
             const userInfo = decodeToken(token);
             console.log('User info:', userInfo); // Handle user information here if needed
-            alert('Logged in as user. Redirecting...');
             window.location.href = '/dashboard.html';
         } catch (error) {
             console.error('Error logging in as user:', error);
