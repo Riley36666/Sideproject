@@ -185,7 +185,7 @@ async function loginAsUser(userId) {
 
         // Clear existing session storage or local storage if needed
         localStorage.removeItem('authToken'); // Remove the admin token or previous user token
-        localStorage.setItem('authToken', data.token); // Store the new user token
+        localStorage.setItem('token', data.token); // Store the new user token
 
         alert('Logged in as user. Redirecting...');
         window.location.href = '/dashboard.html'; // Redirect to user's dashboard
