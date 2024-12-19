@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .login__field {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .login__input {
+      width: 100%;
+      padding: 12px 15px;
+      border: none;
+      border-bottom: 2px solid #ddd;
+      background: transparent;
+      outline: none;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .login__input:focus {
+      border-color: #ff9a9e;
+    }
+
+    .login__input::placeholder {
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .switch-button {
+      background: transparent;
+      color: #ff9a9e;
+      margin-top: 20px;
+      font-weight: 400;
+    }
+
+    .switch-button:hover {
+      background: rgba(255, 154, 158, 0.1);
+      transform: none;
+      box-shadow: none;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #e74c3c;
+      text-align: center;
+    }
+
+    .icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    #login-message,
+    #register-message,
+    #reset-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .reset-section {
+      display: none;
+      margin-top: 20px;
+    }
