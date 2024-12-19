@@ -127,7 +127,7 @@ app.post('/login', loginLimiter, async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = jwt.sign({ id: user._id, username: user.username, isAdmin: user.isAdmin }, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner}, jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
