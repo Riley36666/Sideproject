@@ -158,9 +158,9 @@
 }
 async function loginAsUser(userId) {
     try {
-        const token = localStorage.getItem('authToken');
+        const adminToken = localStorage.getItem('authToken');
 
-        if (!token) {
+        if (!adminToken) {
             alert('Admin token not found. Please log in as admin.');
             return;
         }
@@ -169,19 +169,24 @@ async function loginAsUser(userId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`, // Admin token
+                'Authorization': `Bearer ${adminToken}`, // Admin token
             },
             body: JSON.stringify({ userId }),
         });
 
         if (!response.ok) {
+            if (response.status === 403) {
+                alert('Permission denied. Unable to log in as this user.');
+            }
             throw new Error('Failed to generate user token');
         }
 
         const data = await response.json();
 
-        // Store the new user token and reload the page as the selected user
-        localStorage.setItem('authToken', data.token);
+        // Clear existing session storage or local storage if needed
+        localStorage.removeItem('authToken'); // Remove the admin token or previous user token
+        localStorage.setItem('authToken', data.token); // Store the new user token
+
         alert('Logged in as user. Redirecting...');
         window.location.href = '/dashboard.html'; // Redirect to user's dashboard
     } catch (error) {
@@ -189,6 +194,7 @@ async function loginAsUser(userId) {
         alert('Failed to log in as user.');
     }
 }
+
 
     // Initialize the dashboard
     fetchUsers();
