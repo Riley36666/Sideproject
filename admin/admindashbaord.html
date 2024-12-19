@@ -14,6 +14,7 @@
 
 <div class="container">
     <h2>User Management</h2>
+    <input type="text" id="searchInput" placeholder="Search by username..." style="padding: 8px; border-radius: 5px; margin-bottom: 10px;">
     <table>
         <thead>
             <tr>
@@ -178,6 +179,16 @@
 
     // Initialize the dashboard
     fetchUsers();
+    document.getElementById('searchInput').addEventListener('input', function () {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#user-list tr');
+
+    rows.forEach(row => {
+        const username = row.querySelector('td:first-child').textContent.toLowerCase();
+        row.style.display = username.includes(filter) ? '' : 'none';
+    });
+});
+
 </script>
 
 </body>
