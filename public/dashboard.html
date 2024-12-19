@@ -279,7 +279,8 @@
 
       if (userInfo) {
         const userInfoElement = document.getElementById('user-info');
-        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})`;
+        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})
+        - ${userInfo.isOwner ? 'Owner' : 'User'}`;  
 
         if (userInfo.isAdmin) {
           const adminBtn = document.getElementById('admin-btn');
