@@ -239,7 +239,18 @@
       </div>
     </div>
   </div>
-
+  <div id="editPageModal" style="display: none;">
+    <div class="modal-content">
+      <h2>Edit Page</h2>
+      <label for="page-title-input">Title:</label>
+      <input type="text" id="page-title-input" />
+      <label for="page-content-textarea">Content:</label>
+      <textarea id="page-content-textarea"></textarea>
+      <button id="save-page-btn">Save</button>
+      <button id="close-page-modal-btn">Cancel</button>
+    </div>
+  </div>
+  
   <script>
     const apiUrl = window.location.origin;
     let currentPageId = null;
@@ -317,22 +328,22 @@
     }
 
     function renderPageList(pages) {
-      const pageListDiv = document.getElementById('page-list');
-      pageListDiv.innerHTML = '';
-      pages.forEach(page => {
-        const pageDiv = document.createElement('div');
-        pageDiv.className = 'page-card';
-        pageDiv.innerHTML = `
-          <div>${page.title}</div>
-          <div>
-            <button class="edit" onclick="openEditTitleModal('${page._id}', '${page.title}')">Edit Title</button>
-            <button class="text" onclick="openEditTextModal('${page._id}', '${page.content}')">Edit Content</button>
-            <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
-          </div>
-        `;
-        pageListDiv.appendChild(pageDiv);
-      });
-    }
+  const pageListDiv = document.getElementById('page-list');
+  pageListDiv.innerHTML = '';
+  pages.forEach(page => {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'page-card';
+    pageDiv.innerHTML = `
+      <div>${page.title}</div>
+      <div>
+        <button class="edit" onclick="openEditPageModal('${page._id}', '${page.title}', '${page.content}')">Edit</button>
+        <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
+      </div>
+    `;
+    pageListDiv.appendChild(pageDiv);
+  });
+}
+
 
     document.getElementById('add-page-btn').addEventListener('click', async () => {
       const token = localStorage.getItem('token');
@@ -481,6 +492,54 @@
     // Initialize the dashboard
     displayUserInfo();
     fetchPages();
+    function openEditPageModal(pageId, title, content) {
+  currentPageId = pageId;
+
+  const modal = document.getElementById('editPageModal');
+  const titleInput = document.getElementById('page-title-input');
+  const contentTextarea = document.getElementById('page-content-textarea');
+
+  titleInput.value = title;
+  contentTextarea.value = content;
+
+  modal.style.display = 'flex';
+}
+
+document.getElementById('save-page-btn').addEventListener('click', async () => {
+  const token = localStorage.getItem('token');
+  const title = document.getElementById('page-title-input').value;
+  const content = document.getElementById('page-content-textarea').value;
+
+  try {
+    const response = await fetch(`${apiUrl}/update-page/${currentPageId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (response.ok) {
+      console.log('Page updated successfully.');
+      fetchPages();
+      closeEditPageModal();
+    } else {
+      const error = await response.json();
+      console.error('Error updating page:', error.message);
+    }
+  } catch (error) {
+    console.error('Error updating page:', error);
+  }
+});
+
+function closeEditPageModal() {
+  const modal = document.getElementById('editPageModal');
+  modal.style.display = 'none';
+}
+
+document.getElementById('close-page-modal-btn').addEventListener('click', closeEditPageModal);
+
   </script>
 </body>
 
