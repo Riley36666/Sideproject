@@ -158,7 +158,7 @@
 }
 async function loginAsUser(userId) {
     try {
-        const adminToken = localStorage.getItem('authToken');
+        const adminToken = localStorage.getItem('token');
 
         if (!adminToken) {
             alert('Admin token not found. Please log in as admin.');
@@ -169,7 +169,7 @@ async function loginAsUser(userId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`, // Admin token
+                'Authorization': `Bearer ${adminToken}`, // Admin token
             },
             body: JSON.stringify({ userId }),
         });
