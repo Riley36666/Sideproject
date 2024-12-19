@@ -203,6 +203,34 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Update Page Route
+app.put('/update-page/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+
+  try {
+    // Find the page by ID and ensure the user is the owner of the page
+    const page = await Page.findOne({ _id: id, userId: req.user.id });
+
+    if (!page) {
+      return res.status(404).json({ message: 'Page not found or unauthorized' });
+    }
+
+    // Update the page's title and content
+    page.title = title;
+    page.content = content;
+
+    await page.save();
+
+    res.status(200).json({ message: 'Page updated successfully', page });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Update Page Route
 app.put('/update-role/:id', authenticateToken, async (req, res) => {
