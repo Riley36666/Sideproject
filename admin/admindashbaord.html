@@ -169,7 +169,7 @@ async function loginAsUser(userId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`, // Admin token
+                'Authorization': `Bearer ${token}`, // Admin token
             },
             body: JSON.stringify({ userId }),
         });
