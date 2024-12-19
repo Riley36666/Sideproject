@@ -206,6 +206,7 @@
       try {
         const base64Payload = token.split('.')[1];
         const payload = atob(base64Payload);
+        console.log(payload);
         return JSON.parse(payload);
       } catch (error) {
         console.error('Error decoding token:', error);
