@@ -267,52 +267,53 @@
     }
 
     function displayUserInfo() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.log('No token found. Redirecting to login page.');
-        window.location.href = '/index.html';
-        return;
-      }
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.log('No token found. Redirecting to login page.');
+    window.location.href = '/index.html';
+    return;
+  }
 
-      const userInfo = decodeToken(token);
-      console.log('Decoded User Info:', userInfo); // Debug log
+  const userInfo = decodeToken(token);
+  console.log('Decoded User Info:', userInfo); // Debug log
 
-      if (userInfo) {
-        const userInfoElement = document.getElementById('user-info');
-        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isAdmin ? 'Admin' : 'User'})
-        - ${userInfo.isOwner ? 'Owner' : 'User'}`;  
+  if (userInfo) {
+    const userInfoElement = document.getElementById('user-info');
+    const role = userInfo.isOwner ? 'Owner' : (userInfo.isAdmin ? 'Admin' : 'User');
+    userInfoElement.textContent = `Logged in as: ${userInfo.username} (${role})`;  
 
-        if (userInfo.isAdmin) {
-          const adminBtn = document.getElementById('admin-btn');
-          adminBtn.style.display = 'block';
-          adminBtn.addEventListener('click', async () => {
-            const token = localStorage.getItem('token');
-            try {
-              const response = await fetch(`${apiUrl}/get-users`, {
-                method: 'GET',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                },
-              });
-              if (response.ok) {
-                const users = await response.json();
-                console.log('Users:', users); // Handle the users' data here
-                window.location.href = `${window.location.origin}/admin/admindashbaord.html`;
-              } else {
-                const error = await response.json();
-                console.error('Error:', error.message);
-              }
-            } catch (err) {
-              console.error('Error fetching users:', err);
-            }
+    if (userInfo.isAdmin) {
+      const adminBtn = document.getElementById('admin-btn');
+      adminBtn.style.display = 'block';
+      adminBtn.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch(`${apiUrl}/get-users`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
           });
+          if (response.ok) {
+            const users = await response.json();
+            console.log('Users:', users); // Handle the users' data here
+            window.location.href = `${window.location.origin}/admin/admindashbaord.html`;
+          } else {
+            const error = await response.json();
+            console.error('Error:', error.message);
+          }
+        } catch (err) {
+          console.error('Error fetching users:', err);
         }
-      } else {
-        console.log('Invalid token. Redirecting to login page.');
-        localStorage.removeItem('token');
-        window.location.href = '/index.html';
-      }
+      });
     }
+  } else {
+    console.log('Invalid token. Redirecting to login page.');
+    localStorage.removeItem('token');
+    window.location.href = '/index.html';
+  }
+}
+
 
     async function fetchPages() {
       const token = localStorage.getItem('token');
