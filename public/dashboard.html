@@ -258,7 +258,7 @@
     function displayUserInfo() {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('You are not logged in.');
+        console.log('No token found. Redirecting to login page.');
         window.location.href = '/index.html';
         return;
       }
@@ -288,20 +288,18 @@
               } else {
                 const error = await response.json();
                 console.error('Error:', error.message);
-                alert(`Error: ${error.message}`);
               }
             } catch (err) {
               console.error('Error fetching users:', err);
             }
           });
         }
-  } else {
-    alert('Invalid token. Please log in again.');
-    localStorage.removeItem('token');
-    window.location.href = '/index.html';
-  }
-}
-
+      } else {
+        console.log('Invalid token. Redirecting to login page.');
+        localStorage.removeItem('token');
+        window.location.href = '/index.html';
+      }
+    }
 
     async function fetchPages() {
       const token = localStorage.getItem('token');
@@ -336,15 +334,153 @@
       });
     }
 
+    document.getElementById('add-page-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      const title = prompt('Enter a title for the new page:');
+      const content = prompt('Enter initial content for the new page:');
+
+      if (!title || !content) {
+        console.log('Title and content are required.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiUrl}/add-page`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title, content }),
+        });
+
+        if (response.ok) {
+          console.log('New page added successfully.');
+          fetchPages();
+        } else {
+          const error = await response.json();
+          console.error('Error adding new page:', error.message);
+        }
+      } catch (error) {
+        console.error('Error adding new page:', error);
+      }
+    });
+
+    async function deletePage(pageId) {
+      const token = localStorage.getItem('token');
+      if (confirm('Are you sure you want to delete this page?')) {
+        try {
+          const response = await fetch(`${apiUrl}/delete-page/${pageId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            console.log('Page deleted successfully.');
+            fetchPages();
+          } else {
+            const error = await response.json();
+            console.error('Error deleting page:', error.message);
+          }
+        } catch (error) {
+          console.error('Error deleting page:', error);
+        }
+      }
+    }
+
+    function openEditTextModal(pageId, content) {
+      currentPageId = pageId;
+      const modal = document.getElementById('editTextModal');
+      const textarea = document.getElementById('text-content');
+      textarea.value = content;
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('save-text-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      const content = document.getElementById('text-content').value;
+
+      try {
+        const response = await fetch(`${apiUrl}/update-page/${currentPageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content }),
+        });
+
+        if (response.ok) {
+          console.log('Page content updated successfully.');
+          fetchPages();
+          closeModal();
+        } else {
+          const error = await response.json();
+          console.error('Error updating page content:', error.message);
+        }
+      } catch (error) {
+        console.error('Error updating page content:', error);
+      }
+    });
+
+    function openEditTitleModal(pageId, title) {
+      currentPageId = pageId;
+      const modal = document.getElementById('editTitleModal');
+      const input = document.getElementById('title-input');
+      input.value = title;
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('save-title-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      const title = document.getElementById('title-input').value;
+
+      try {
+        const response = await fetch(`${apiUrl}/update-page/${currentPageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title }),
+        });
+
+        if (response.ok) {
+          console.log('Page title updated successfully.');
+          fetchPages();
+          closeTitleModal();
+        } else {
+          const error = await response.json();
+          console.error('Error updating page title:', error.message);
+        }
+      } catch (error) {
+        console.error('Error updating page title:', error);
+      }
+    });
+
+    function closeModal() {
+      const modal = document.getElementById('editTextModal');
+      modal.style.display = 'none';
+    }
+
+    function closeTitleModal() {
+      const modal = document.getElementById('editTitleModal');
+      modal.style.display = 'none';
+    }
+
+    document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+    document.getElementById('close-title-modal-btn').addEventListener('click', closeTitleModal);
+
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = '/index.html';
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      displayUserInfo();
-      fetchPages();
-    });
+    // Initialize the dashboard
+    displayUserInfo();
+    fetchPages();
   </script>
 </body>
 
