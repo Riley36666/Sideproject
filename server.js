@@ -228,6 +228,9 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+app.get('/admin/admindashbaord.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin/admindashbaord.html'));
+});
 
 // Delete Page Route
 app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
