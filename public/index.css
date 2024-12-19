@@ -11,7 +11,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      background: linear-gradient(45deg, #34495e, #2ecc71);
     }
 
     .form-container {
