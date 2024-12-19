@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   isAdmin: { type: Boolean, default: false }, // Admin flag
-  whatrole: { type: String, default: false },
+  isOwner: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null }, // Track last login time
 });
@@ -127,7 +127,7 @@ app.post('/login', loginLimiter, async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = jwt.sign({ id: user._id, username: user.username, isAdmin: user.isAdmin, Role: user.whatrole}, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner }, jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
@@ -177,7 +177,7 @@ app.get('/get-users', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const users = await User.find({}, 'username email isAdmin whatrole lastLogin createdAt');
+    const users = await User.find({}, 'username email isAdmin isOwner lastLogin createdAt');
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
@@ -207,7 +207,7 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
 // Update Page Route
 app.put('/update-role/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { isAdmin, whatrole } = req.body;
+  const { isAdmin, isOwner } = req.body;
 
   try {
     if (!req.user.isAdmin) {
@@ -220,7 +220,7 @@ app.put('/update-role/:id', authenticateToken, async (req, res) => {
     }
 
     user.isAdmin = isAdmin !== undefined ? isAdmin : user.isAdmin;
-    user.whatrole = whatrole !== undefined ? whatrole : user.whatrole;
+    user.isOwner = isOwner !== undefined ? isOwner : user.isOwner;
 
     await user.save();
     res.status(200).json({ message: 'User role updated successfully', user });
@@ -302,7 +302,7 @@ app.delete('/delete-user/:id', authenticateToken, async (req, res) => {
 });
 app.put('/update-role/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { isAdmin, whatrole} = req.body; // Accept `isAdmin` and `isOwner` in the request body
+  const { isAdmin, isOwner } = req.body; // Accept `isAdmin` and `isOwner` in the request body
 
   try {
     // Check if the request is from an admin
@@ -330,35 +330,35 @@ app.put('/update-role/:id', authenticateToken, async (req, res) => {
 });
 
 // Add New Page Route
-app.put('/update-role/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { isAdmin, whatrole } = req.body; // Accept `isAdmin` and `whatrole` in the request body
+app.post('/add-page', authenticateToken, async (req, res) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
 
   try {
-    // Check if the request is from an admin
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
+    const newPage = new Page({
+      title,
+      content,
+      userId: req.user.id,
+    });
 
-    // Find the user by ID
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Update the roles if values are provided
-    if (typeof isAdmin !== 'undefined') user.isAdmin = isAdmin;
-    if (typeof whatrole !== 'undefined') user.role = whatrole; // Update the user's role
-
-    // Save the changes to the database
-    await user.save();
-
-    res.status(200).json({ message: 'User role updated successfully', user });
+    await newPage.save();
+    res.status(201).json({ message: 'Page added successfully', page: newPage });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  });
+}
 
 // Global Error Handler
 app.use((err, req, res, next) => {
