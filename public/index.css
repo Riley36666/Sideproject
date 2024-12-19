@@ -58,7 +58,7 @@
     button {
       width: 100%;
       padding: 12px;
-      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      background: linear-gradient(45deg, #34495e, #2ecc71);
       border: none;
       border-radius: 25px;
       color: white;
@@ -75,7 +75,7 @@
 
     .switch-button {
       background: transparent;
-      color: #ff9a9e;
+      color: #2ecc71;
       margin-top: 20px;
       font-weight: 400;
     }
