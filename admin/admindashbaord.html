@@ -137,6 +137,58 @@
             userList.appendChild(row);
         });
     }
+    function renderUserList(users) {
+    const userList = document.getElementById('user-list');
+    userList.innerHTML = '';
+
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.isAdmin ? 'Yes' : 'No'}</td>
+            <td>${new Date(user.lastLogin).toLocaleString()}</td>
+            <td>${new Date(user.createdAt).toLocaleString()}</td>
+            <td>
+                <button class="btn" onclick="loginAsUser('${user._id}')">Login as User</button>
+            </td>
+        `;
+        userList.appendChild(row);
+    });
+}
+async function loginAsUser(userId) {
+    try {
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            alert('Admin token not found. Please log in as admin.');
+            return;
+        }
+
+        const response = await fetch(`${apiUrl}/generate-user-token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Admin token
+            },
+            body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to generate user token');
+        }
+
+        const data = await response.json();
+
+        // Store the new user token and reload the page as the selected user
+        localStorage.setItem('authToken', data.token);
+        alert('Logged in as user. Redirecting...');
+        window.location.href = '/dashboard.html'; // Redirect to user's dashboard
+    } catch (error) {
+        console.error('Error logging in as user:', error);
+        alert('Failed to log in as user.');
+    }
+}
 
     // Initialize the dashboard
     fetchUsers();

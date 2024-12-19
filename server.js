@@ -251,6 +251,33 @@ app.delete('/delete-page/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+app.post('/generate-user-token', authenticateToken, async (req, res) => {
+  try {
+      // Ensure the request is coming from an admin
+      if (!req.user.isAdmin) {
+          return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const { userId } = req.body;
+
+      // Find the user by ID
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Generate a token for the selected user
+      const token = jwt.sign(
+          { id: user._id, username: user.username, isAdmin: user.isAdmin },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' } // Temporary token
+      );
+
+      res.status(200).json({ token });
+  } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Add New Page Route
 app.post('/add-page', authenticateToken, async (req, res) => {
