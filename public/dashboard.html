@@ -296,6 +296,7 @@
               if (response.ok) {
                 const users = await response.json();
                 console.log('Users:', users); // Handle the users' data here
+                window.location.href = '/admin/admindashbaord.html';
               } else {
                 const error = await response.json();
                 console.error('Error:', error.message);

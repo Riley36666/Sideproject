@@ -59,101 +59,62 @@
 </header>
 
 <div class="container">
-    <h2>Manage Pages</h2>
-    <button class="btn" id="add-page-btn">Add New Page</button>
+    <h2>User Management</h2>
     <table>
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Actions</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Admin</th>
+                <th>Last Login</th>
+                <th>Created At</th>
             </tr>
         </thead>
-        <tbody id="page-list">
-            <!-- Pages will be dynamically loaded here -->
+        <tbody id="user-list">
+            <!-- Users will be dynamically loaded here -->
         </tbody>
     </table>
 </div>
 
-<div id="editPageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);">
-    <div style="background: #fff; padding: 20px; margin: 50px auto; width: 50%; border-radius: 10px;">
-        <h2>Edit Page</h2>
-        <label for="page-title-input">Title:</label>
-        <input type="text" id="page-title-input" style="width: 100%; margin-bottom: 10px;" />
-        <label for="page-content-textarea">Content:</label>
-        <textarea id="page-content-textarea" style="width: 100%; height: 100px;"></textarea>
-        <div style="margin-top: 10px; text-align: right;">
-            <button class="btn" id="save-page-btn">Save</button>
-            <button class="btn" style="background-color: #dc3545;" id="close-page-modal-btn">Cancel</button>
-        </div>
-    </div>
-</div>
-
 <script>
     const apiUrl = window.location.origin;
-    let currentPageId = null;
 
-    function fetchPages() {
-        // Dummy data to simulate API call
-        const pages = [
-            { _id: '1', title: 'Home' },
-            { _id: '2', title: 'About' },
-            { _id: '3', title: 'Contact' }
-        ];
-        renderPageList(pages);
+    async function fetchUsers() {
+        try {
+            // Replace this with the actual API call
+            const response = await fetch(`${apiUrl}/get-users`, {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer your-token-here' }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
+            const users = await response.json();
+            renderUserList(users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
     }
 
-    function renderPageList(pages) {
-        const pageList = document.getElementById('page-list');
-        pageList.innerHTML = '';
-        pages.forEach(page => {
+    function renderUserList(users) {
+        const userList = document.getElementById('user-list');
+        userList.innerHTML = '';
+
+        users.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${page.title}</td>
-                <td>
-                    <button class="btn" onclick="openEditPageModal('${page._id}', '${page.title}')">Edit</button>
-                    <button class="btn" style="background-color: #dc3545;" onclick="deletePage('${page._id}')">Delete</button>
-                </td>
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+                <td>${user.isAdmin ? 'Yes' : 'No'}</td>
+                <td>${new Date(user.lastLogin).toLocaleString()}</td>
+                <td>${new Date(user.createdAt).toLocaleString()}</td>
             `;
-            pageList.appendChild(row);
+            userList.appendChild(row);
         });
     }
 
-    function openEditPageModal(pageId, title) {
-        currentPageId = pageId;
-        document.getElementById('page-title-input').value = title;
-        document.getElementById('editPageModal').style.display = 'flex';
-    }
-
-    function closeEditPageModal() {
-        document.getElementById('editPageModal').style.display = 'none';
-    }
-
-    function deletePage(pageId) {
-        if (confirm('Are you sure you want to delete this page?')) {
-            console.log(`Page with ID ${pageId} deleted.`);
-            fetchPages();
-        }
-    }
-
-    document.getElementById('add-page-btn').addEventListener('click', () => {
-        const title = prompt('Enter page title:');
-        if (title) {
-            console.log(`New page added with title: ${title}`);
-            fetchPages();
-        }
-    });
-
-    document.getElementById('save-page-btn').addEventListener('click', () => {
-        const title = document.getElementById('page-title-input').value;
-        console.log(`Page with ID ${currentPageId} updated to title: ${title}`);
-        closeEditPageModal();
-        fetchPages();
-    });
-
-    document.getElementById('close-page-modal-btn').addEventListener('click', closeEditPageModal);
-
     // Initialize the dashboard
-    fetchPages();
+    fetchUsers();
 </script>
 
 </body>
