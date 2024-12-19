@@ -32,8 +32,8 @@ body {
 
 .sidebar button {
   width: 100%;
-  margin: 8px 0;
-  padding: 8px;
+  margin: 2px 0;
+  padding: 12px;
   background-color: #27ae60;
   color: #fff;
   border: none;
