@@ -3,205 +3,169 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Raleway', sans-serif;
-    }
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
 
-    body {
-      display: flex;
-      height: 100vh;
-      background-color: #f4f7fb;
-    }
+  body {
+    display: flex;
+    height: 100vh;
+    background-color: #f7f7f8;
+  }
 
-    .sidebar {
-      width: 250px;
-      background-color: #34495e;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+  .sidebar {
+    width: 250px;
+    background-color: #2d3436;
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
 
-    .sidebar h2 {
-      margin-bottom: 20px;
-      font-size: 1.5em;
-    }
+  .sidebar h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
 
-    .sidebar p {
-      font-size: 1em;
-      margin: 10px 0;
-    }
+  .sidebar p {
+    font-size: 1em;
+    margin: 10px 0;
+  }
 
-    .sidebar button {
-      width: 90%;
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1em;
-    }
+  .sidebar button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    background-color: #0984e3;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+  }
 
-    .sidebar button.admin-btn {
-      background-color: #8e44ad;
-    }
+  .sidebar button:hover {
+    background-color: #74b9ff;
+  }
 
-    .sidebar button.logout-btn {
-      background-color: #e74c3c;
-    }
+  .main-content {
+    flex-grow: 1;
+    padding: 30px;
+  }
 
-    .sidebar button:hover {
-      background-color: #2980b9;
-    }
+  .main-content h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin-bottom: 30px;
+  }
 
-    .sidebar button.admin-btn:hover {
-      background-color: #732d91;
-    }
+  .page-card {
+    background-color: #fff;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
 
-    .sidebar button.logout-btn:hover {
-      background-color: #c0392b;
-    }
+  .page-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
 
-    .main-content {
-      flex-grow: 1;
-      padding: 20px;
-    }
+  .page-card button {
+    background-color: #0984e3;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9em;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
 
-    .main-content h1 {
-      margin-bottom: 20px;
-      font-size: 1.8em;
-      color: #2c3e50;
-    }
+  .page-card button:hover {
+    background-color: #74b9ff;
+  }
 
-    .page-card {
-      background-color: #fff;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
 
-    .page-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    }
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 500px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  }
 
-    .page-card button {
-      margin-left: 10px;
-      padding: 8px 12px;
-      cursor: pointer;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 0.9em;
-      transition: background-color 0.3s;
-    }
+  textarea,
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1.1em;
+  }
 
-    .page-card button.edit {
-      background-color: #f39c12;
-    }
+  .modal button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+  }
 
-    .page-card button.text {
-      background-color: #8e44ad;
-    }
+  .save-btn {
+    background-color: #2ecc71;
+    color: white;
+  }
 
-    .page-card button.delete {
-      background-color: #e74c3c;
-    }
+  .close-btn {
+    background-color: #e74c3c;
+    color: white;
+  }
 
-    .page-card button:hover {
-      background-color: #2980b9;
-    }
+  .save-btn:hover {
+    background-color: #27ae60;
+  }
 
-    .page-card button.edit:hover {
-      background-color: #d35400;
-    }
+  .close-btn:hover {
+    background-color: #c0392b;
+  }
+</style>
 
-    .page-card button.text:hover {
-      background-color: #732d91;
-    }
+<!-- Your HTML content below -->
 
-    .page-card button.delete:hover {
-      background-color: #c0392b;
-    }
 
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 5px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    textarea,
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-    }
-
-    .modal button {
-      padding: 8px 12px;
-      margin: 5px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-
-    .save-btn {
-      background-color: #2ecc71;
-      color: white;
-    }
-
-    .close-btn {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .save-btn:hover {
-      background-color: #27ae60;
-    }
-
-    .close-btn:hover {
-      background-color: #c0392b;
-    }
-  </style>
 </head>
 
 <body>
