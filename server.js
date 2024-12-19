@@ -65,6 +65,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   isAdmin: { type: Boolean, default: false }, // Admin flag
+  isOwner: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null }, // Track last login time
 });
@@ -176,7 +177,7 @@ app.get('/get-users', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const users = await User.find({}, 'username email isAdmin lastLogin createdAt');
+    const users = await User.find({}, 'username email isAdmin isOwner lastLogin createdAt');
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
@@ -204,30 +205,30 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
 });
 
 // Update Page Route
-app.put('/update-page/:id', authenticateToken, async (req, res) => {
+app.put('/update-role/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required' });
-  }
+  const { isAdmin, isOwner } = req.body;
 
   try {
-    const updatedPage = await Page.findOneAndUpdate(
-      { _id: id, userId: req.user.id },
-      { title, content },
-      { new: true }
-    );
-
-    if (!updatedPage) {
-      return res.status(404).json({ message: 'Page not found or unauthorized' });
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
     }
 
-    res.status(200).json({ message: 'Page updated successfully', updatedPage });
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.isAdmin = isAdmin !== undefined ? isAdmin : user.isAdmin;
+    user.isOwner = isOwner !== undefined ? isOwner : user.isOwner;
+
+    await user.save();
+    res.status(200).json({ message: 'User role updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 app.get('/admin/admindashbaord.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin/admindashbaord.html'));
 });

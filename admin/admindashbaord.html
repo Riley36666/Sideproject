@@ -65,9 +65,10 @@
             <tr>
                 <th>Username</th>
                 <th>Email</th>
-                <th>Admin</th>
+                <th>Role</th>
                 <th>Last Login</th>
                 <th>Created At</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="user-list">
@@ -121,22 +122,58 @@
 }
 
 
-    function renderUserList(users) {
-        const userList = document.getElementById('user-list');
-        userList.innerHTML = '';
+function renderUserList(users) {
+  const userList = document.getElementById('user-list');
+  userList.innerHTML = '';
 
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td>${user.isAdmin ? 'Yes' : 'No'}</td>
-                <td>${new Date(user.lastLogin).toLocaleString()}</td>
-                <td>${new Date(user.createdAt).toLocaleString()}</td>
-            `;
-            userList.appendChild(row);
-        });
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${user.username}</td>
+      <td>${user.email}</td>
+      <td>
+        <select onchange="updateRole('${user._id}', this.value)">
+          <option value="none" ${!user.isAdmin && !user.isOwner ? 'selected' : ''}>None</option>
+          <option value="admin" ${user.isAdmin ? 'selected' : ''}>Admin</option>
+          <option value="owner" ${user.isOwner ? 'selected' : ''}>Owner</option>
+        </select>
+      </td>
+      <td>${new Date(user.lastLogin).toLocaleString()}</td>
+      <td>${new Date(user.createdAt).toLocaleString()}</td>
+    `;
+    userList.appendChild(row);
+  });
+}
+
+async function updateRole(userId, role) {
+  try {
+    const isAdmin = role === 'admin';
+    const isOwner = role === 'owner';
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${apiUrl}/update-role/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isAdmin, isOwner }),
+    });
+
+    if (response.ok) {
+      alert('User role updated successfully');
+      fetchUsers(); // Refresh the user list
+    } else {
+      const error = await response.json();
+      alert(`Error: ${error.message}`);
     }
+  } catch (error) {
+    console.error('Error updating role:', error);
+    alert('Failed to update user role. Please try again.');
+  }
+}
+
+
     function renderUserList(users) {
     const userList = document.getElementById('user-list');
     userList.innerHTML = '';
