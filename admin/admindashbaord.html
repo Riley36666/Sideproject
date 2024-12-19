@@ -219,6 +219,7 @@
 
             const data = await response.json();
             localStorage.setItem('token', data.token); // Replace admin token with user token
+            console.log(token);
             alert('Logged in as user. Redirecting...');
             window.location.href = '/dashboard.html';
         } catch (error) {
