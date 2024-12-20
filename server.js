@@ -15,7 +15,8 @@ const axios = require('axios'); // Make sure to install this package
 // Initialize app
 const app = express();
 const port = process.env.PORT || 8080;
-const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL;
+const discordWebhookUrladmin = process.env.DISCORD_WEBHOOK_URL;
+const discordWebhookUrlowner = process.env.DISCORD_WEBHOOK_URL_owner;
 // Validate environment variables
 const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
@@ -143,9 +144,18 @@ app.post('/login', loginLimiter, async (req, res) => {
       const discordMessage = {
         content: `:warning: **Admin Login Alert** :warning:\n\n**Admin Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}`,
       };
-
       try {
-        await axios.post(discordWebhookUrl, discordMessage);
+        await axios.post(discordWebhookUrladmin, discordMessage);
+      } catch (discordError) {
+        console.error('Failed to send admin login alert to Discord:', discordError.message);
+      }
+    }
+    if (user.iswebowner) {
+      const discordMessage = {
+        content: `:warning: **Web Owner Login Alert** :warning:\n\n**Web Owner Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}\n@<1249254226211901492>`,
+      };
+      try {
+        await axios.post(discordWebhookUrlowner, discordMessage);
       } catch (discordError) {
         console.error('Failed to send admin login alert to Discord:', discordError.message);
       }
