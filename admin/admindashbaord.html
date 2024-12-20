@@ -46,7 +46,7 @@
 
         // Decode token to get current user's role
         const userInfo = decodeToken(token);
-        const isWebOwner = userInfo?.isWebOwner;
+        const isWebOwner = userInfo?.iswebowner;
         const isAdmin = userInfo?.isAdmin;
 
         const response = await fetch(`${apiUrl}/get-users`, {
@@ -69,8 +69,8 @@
 
         // Filter users based on role
         const filteredUsers = users.filter(user => {
-            if (isWebOwner) return true; // Web owner sees all accounts
-            if (isAdmin && !user.isAdmin && !user.isWebOwner) return true; // Admins see non-admins only
+            if (iswebowner) return true; // Web owner sees all accounts
+            if (isAdmin && !user.isAdmin && !user.iswebowner) return true; // Admins see non-admins only
             return false; // Otherwise, don't show the account
         });
 
