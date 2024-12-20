@@ -15,75 +15,103 @@
 <div class="container">
     <h2>User Management</h2>
     <input type="text" id="searchInput" placeholder="Search by username..." style="padding: 8px; border-radius: 5px; margin-bottom: 10px;">
-    <table>
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Last Login</th>
-                <th>Created At</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="user-list">
-            <!-- Users will be dynamically loaded here -->
-        </tbody>
-    </table>
+
+    <!-- Tabs for Admins and Owners -->
+    <div class="tabs">
+        <button class="tab-link active" onclick="switchTab('adminTab')">Admins</button>
+        <button class="tab-link" onclick="switchTab('ownerTab')">Owners</button>
+    </div>
+
+    <!-- Admins Table -->
+    <div id="adminTab" class="tab-content">
+        <h3>Admins</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="admin-list">
+                <!-- Admin users will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Owners Table -->
+    <div id="ownerTab" class="tab-content" style="display: none;">
+        <h3>Owners</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="owner-list">
+                <!-- Owner users will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
     const apiUrl = window.location.origin;
 
     async function fetchUsers() {
-    try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert('No authentication token found. Redirecting to login.');
-            window.location.href = '/login.html';
-            return;
-        }
-
-        // Decode token to get current user's role
-        const userInfo = decodeToken(token);
-        const isWebOwner = userInfo?.iswebowner;
-        const isAdmin = userInfo?.isAdmin;
-
-        const response = await fetch(`${apiUrl}/get-users`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                alert('Unauthorized. Redirecting to login.');
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert('No authentication token found. Redirecting to login.');
                 window.location.href = '/login.html';
-            } else {
-                throw new Error(`Error: ${response.statusText}`);
+                return;
             }
+
+            // Decode token to get current user's role
+            const userInfo = decodeToken(token);
+            const isWebOwner = userInfo?.iswebowner;
+            const isAdmin = userInfo?.isAdmin;
+
+            const response = await fetch(`${apiUrl}/get-users`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Unauthorized. Redirecting to login.');
+                    window.location.href = '/login.html';
+                } else {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+            }
+
+            const users = await response.json();
+
+            // Filter users based on role
+            const admins = users.filter(user => user.isAdmin && !user.iswebowner);
+            const owners = users.filter(user => user.iswebowner);
+
+            renderUserList(admins, 'admin-list');
+            renderUserList(owners, 'owner-list');
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            alert('Failed to fetch users. Please try again later.');
         }
-
-        const users = await response.json();
-
-        // Filter users based on role
-        const filteredUsers = users.filter(user => {
-            if (isWebOwner) return true; // Web owner sees all accounts
-            if (isAdmin && !user.isAdmin && !user.iswebowner) return true; // Admins see non-admins only
-            return false; // Otherwise, don't show the account
-        });
-
-        renderUserList(filteredUsers);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        alert('Failed to fetch users. Please try again later.');
     }
-}
 
-
-    function renderUserList(users) {
-        const userList = document.getElementById('user-list');
+    function renderUserList(users, listId) {
+        const userList = document.getElementById(listId);
         userList.innerHTML = ''; // Clear previous entries
 
         users.forEach(user => {
@@ -93,9 +121,9 @@
                 <td>${user.email}</td>
                 <td>
                     <select onchange="updateRole('${user._id}', this.value)">
-                        <option value="none" ${!user.isAdmin && !user.isOwner ? 'selected' : ''}>None</option>
-                        <option value="admin" ${user.isAdmin ? 'selected' : ''}>Admin</option>
-                        <option value="owner" ${user.isOwner ? 'selected' : ''}>Owner</option>
+                        <option value="none" ${!user.isAdmin && !user.iswebowner ? 'selected' : ''}>None</option>
+                        <option value="admin" ${user.isAdmin && !user.iswebowner ? 'selected' : ''}>Admin</option>
+                        <option value="owner" ${user.iswebowner ? 'selected' : ''}>Owner</option>
                     </select>
                 </td>
                 <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
@@ -155,17 +183,19 @@
             alert('Failed to delete user.');
         }
     }
+
     function decodeToken(token) {
-      try {
-        const base64Payload = token.split('.')[1];
-        const payload = atob(base64Payload);
-        console.log(payload);
-        return JSON.parse(payload);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-      }
+        try {
+            const base64Payload = token.split('.')[1];
+            const payload = atob(base64Payload);
+            console.log(payload);
+            return JSON.parse(payload);
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return null;
+        }
     }
+
     async function loginAsUser(userId) {
         try {
             const token = localStorage.getItem('token');
@@ -182,8 +212,6 @@
 
             const data = await response.json();
             localStorage.setItem('token', data.token); // Replace admin token with user token
-            const userInfo = decodeToken(token);
-            console.log('User info:', userInfo); // Handle user information here if needed
             window.location.href = '/dashboard.html';
         } catch (error) {
             console.error('Error logging in as user:', error);
@@ -191,18 +219,19 @@
         }
     }
 
+    function switchTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-content');
+        const links = document.querySelectorAll('.tab-link');
+
+        tabs.forEach(tab => (tab.style.display = 'none'));
+        links.forEach(link => link.classList.remove('active'));
+
+        document.getElementById(tabId).style.display = 'block';
+        document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+    }
+
     // Initialize the dashboard
     fetchUsers();
-    document.getElementById('searchInput').addEventListener('input', function () {
-    const filter = this.value.toLowerCase();
-    const rows = document.querySelectorAll('#user-list tr');
-
-    rows.forEach(row => {
-        const username = row.querySelector('td:first-child').textContent.toLowerCase();
-        row.style.display = username.includes(filter) ? '' : 'none';
-    });
-});
-
 </script>
 
 </body>

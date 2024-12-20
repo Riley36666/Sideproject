@@ -59,3 +59,58 @@ select {
     padding: 5px;
     border-radius: 5px;
 }
+
+/* Tabs styles */
+.tabs {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.tab-link {
+    flex: 1;
+    text-align: center;
+    padding: 10px 15px;
+    background: #f4f4f4;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    border-right: 1px solid #ddd;
+}
+
+.tab-link.active {
+    background: #007BFF;
+    color: #fff;
+}
+
+.tab-link:last-child {
+    border-right: none;
+}
+
+.tab-link:hover {
+    background: #007BFF;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.tab-content h3 {
+    margin-top: 0;
+    color: #007BFF;
+}
+
+/* Show active tab */
+.tab-content.active {
+    display: block;
+}
