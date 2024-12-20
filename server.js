@@ -153,6 +153,7 @@ app.post('/login', loginLimiter, async (req, res) => {
       const discordMessage = {
         content: `:warning: **Web Owner Login Alert** :warning:\n\n**Web Owner Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}\n@<1249254226211901492>`,
       };
+      console.log('Web Owner Login Alert:', discordMessage.content);
       try {
         await axios.post(discordWebhookUrlowner, discordMessage);
       } catch (discordError) {
