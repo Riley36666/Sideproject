@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
   isOwner: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null }, // Track last login time
+  iswebowner: { type: Boolean, default: false },
 });
 
 userSchema.index({ username: 1 });
@@ -129,7 +130,7 @@ app.post('/login', loginLimiter, async (req, res) => {
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner },
+      { id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner, iswebowner: user.iswebowner },
       jwtSecret,
       { expiresIn: '1h' }
     );
