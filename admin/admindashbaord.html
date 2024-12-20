@@ -61,6 +61,24 @@
             </tbody>
         </table>
     </div>
+    <div id="userTab" class="tab-content" style="display: none;">
+        <h3>Users</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="user-list">
+                <!-- Regular users will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -101,9 +119,11 @@
             // Filter users based on role
             const admins = users.filter(user => user.isAdmin && !user.iswebowner);
             const owners = users.filter(user => user.iswebowner);
+            const regularUsers = users.filter(user => !user.isAdmin && !user.iswebowner);
 
             renderUserList(admins, 'admin-list');
             renderUserList(owners, 'owner-list');
+            renderUserList(regularUsers, 'user-list');
         } catch (error) {
             console.error('Error fetching users:', error);
             alert('Failed to fetch users. Please try again later.');
