@@ -69,7 +69,7 @@
 
         // Filter users based on role
         const filteredUsers = users.filter(user => {
-            if (iswebowner) return true; // Web owner sees all accounts
+            if (isWebOwner) return true; // Web owner sees all accounts
             if (isAdmin && !user.isAdmin && !user.iswebowner) return true; // Admins see non-admins only
             return false; // Otherwise, don't show the account
         });
