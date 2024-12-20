@@ -11,11 +11,11 @@ const cors = require('cors');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
-
+const axios = require('axios'); // Make sure to install this package
 // Initialize app
 const app = express();
 const port = process.env.PORT || 8080;
-
+const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL;
 // Validate environment variables
 const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
@@ -110,6 +110,7 @@ function authenticateToken(req, res, next) {
 // API Routes
 
 // Login Route
+
 app.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
@@ -127,12 +128,36 @@ app.post('/login', loginLimiter, async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = jwt.sign({ id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner }, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner },
+      jwtSecret,
+      { expiresIn: '1h' }
+    );
+
+    // Get client IP address
+    const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    // Notify Discord if the user is an admin
+    if (user.isAdmin) {
+      const discordMessage = {
+        content: `:warning: **Admin Login Alert** :warning:\n\n**Admin Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}`,
+      };
+
+      try {
+        await axios.post(discordWebhookUrl, discordMessage);
+      } catch (discordError) {
+        console.error('Failed to send admin login alert to Discord:', discordError.message);
+      }
+    }
+
     res.status(200).json({ token });
   } catch (error) {
+    console.error('Error during login:', error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
 
 // Register Route
 app.post('/register', async (req, res) => {
