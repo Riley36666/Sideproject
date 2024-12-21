@@ -92,7 +92,7 @@
 
   const userInfo = decodeToken(token);
   console.log('Decoded User Info:', userInfo);
-  console.log("iswebowner", user.iswebowner); // Debug log
+  console.log("iswebowner", userInfo.iswebowner); // Debug log
 
   if (userInfo) {
     const userInfoElement = document.getElementById('user-info');
