@@ -149,7 +149,7 @@ app.post('/login', loginLimiter, async (req, res) => {
         console.error('Failed to send admin login alert to Discord:', discordError.message);
       }
     }
-    if (userInfo.iswebowner) {
+    if (user.iswebowner) {
       const discordMessage = {
         content: `:warning: **Web Owner Login Alert** :warning:\n\n**Web Owner Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}\n@<1249254226211901492>`,
       };
