@@ -137,7 +137,7 @@ app.post('/login', loginLimiter, async (req, res) => {
 
     // Get client IP address
     const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
+    console.log("iswebowner": user.iswebowner);
     // Notify Discord if the user is an admin
     if (user.isAdmin && !user.iswebowner) {
       const discordMessage = {
