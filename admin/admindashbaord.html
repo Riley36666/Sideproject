@@ -118,8 +118,8 @@
             const users = await response.json();
 
             // Filter users based on role
-            const admins = users.filter(user => user.isAdmin && !user.iswebowner);
             const owners = users.filter(user => user.iswebowner);
+            const admins = users.filter(user => user.isAdmin && !user.iswebowner);
             const regularUsers = users.filter(user => !user.isAdmin && !user.iswebowner);
 
             renderUserList(admins, 'admin-list');
