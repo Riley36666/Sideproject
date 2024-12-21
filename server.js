@@ -128,7 +128,7 @@ app.post('/login', loginLimiter, async (req, res) => {
     // Update last login time
     user.lastLogin = new Date();
     await user.save();
-
+    console.log("iswebowner", user.iswebowner);
     const token = jwt.sign(
       { id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner, iswebowner: user.iswebowner },
       jwtSecret,
