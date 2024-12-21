@@ -12,6 +12,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
 const axios = require('axios'); // Make sure to install this package
+const { userInfo } = require('os');
 // Initialize app
 const app = express();
 const port = process.env.PORT || 8080;
@@ -93,7 +94,6 @@ function authenticateToken(req, res, next) {
     return res.status(401)
               .contentType('application/json')
               .json({ message: 'Authorization token missing' });
-              console.log("iswebowner", user.iswebowner);
   }
 
   jwt.verify(token, jwtSecret, (err, user) => {
@@ -149,7 +149,7 @@ app.post('/login', loginLimiter, async (req, res) => {
         console.error('Failed to send admin login alert to Discord:', discordError.message);
       }
     }
-    if (user.iswebowner) {
+    if (userInfo.iswebowner) {
       const discordMessage = {
         content: `:warning: **Web Owner Login Alert** :warning:\n\n**Web Owner Username:** ${user.username}\n**Login Time:** ${new Date().toISOString()}\n**IP Address:** ${clientIp}\n@<1249254226211901492>`,
       };
