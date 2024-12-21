@@ -93,6 +93,7 @@ function authenticateToken(req, res, next) {
     return res.status(401)
               .contentType('application/json')
               .json({ message: 'Authorization token missing' });
+              console.log("iswebowner", user.iswebowner);
   }
 
   jwt.verify(token, jwtSecret, (err, user) => {
@@ -128,7 +129,6 @@ app.post('/login', loginLimiter, async (req, res) => {
     // Update last login time
     user.lastLogin = new Date();
     await user.save();
-    console.log("iswebowner", user.iswebowner);
     const token = jwt.sign(
       { id: user._id, username: user.username, isAdmin: user.isAdmin, isOwner: user.isOwner, iswebowner: user.iswebowner },
       jwtSecret,
