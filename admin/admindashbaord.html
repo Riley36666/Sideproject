@@ -98,6 +98,7 @@
             const userInfo = decodeToken(token);
             const isWebOwner = userInfo?.iswebowner;
             const isAdmin = userInfo?.isAdmin;
+            console.log(userInfo);
 
             const response = await fetch(`${apiUrl}/get-users`, {
                 method: 'GET',
