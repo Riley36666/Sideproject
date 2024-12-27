@@ -1,6 +1,6 @@
 class API {
     static async fetchUsers() {
-        const token = getAuthToken();
+        const token = localStorage.getItem('token');
         if (!token) return;
 
         const response = await fetch(`${CONFIG.apiUrl}${CONFIG.endpoints.getUsers}`, {
