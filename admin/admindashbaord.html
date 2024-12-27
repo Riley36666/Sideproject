@@ -3,258 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin dashboard for user management">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="admindashboard.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/tabs.css">
 </head>
 <body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
 
-<header>
-    <h1>Admin Dashboard</h1>
-</header>
+    <main class="container">
+        <section class="search-section">
+            <h2>User Management</h2>
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search by username..." 
+                aria-label="Search users">
+        </section>
 
-<div class="container">
-    <h2>User Management</h2>
-    <input type="text" id="searchInput" placeholder="Search by username..." style="padding: 8px; border-radius: 5px; margin-bottom: 10px;">
+        <nav class="tabs" role="tablist">
+            <button 
+                class="tab-link" 
+                onclick="switchTab('ownerTab')" 
+                role="tab" 
+                aria-controls="ownerTab">Owners</button>
+            <button 
+                class="tab-link active" 
+                onclick="switchTab('adminTab')" 
+                role="tab" 
+                aria-controls="adminTab">Admins</button>
+            <button 
+                class="tab-link" 
+                onclick="switchTab('userTab')" 
+                role="tab" 
+                aria-controls="userTab">Users</button>
+        </nav>
 
-    <!-- Tabs for Admins and Owners -->
-    <div class="tabs">
-        <button class="tab-link" onclick="switchTab('ownerTab')">Owners</button>
-        <button class="tab-link active" onclick="switchTab('adminTab')">Admins</button>
-        <button class="tab-link" onclick="switchTab('userTab')">Users</button> <!-- Add this line -->
-    </div>
+        <section id="adminTab" class="tab-content" role="tabpanel">
+            <h3>Admins</h3>
+            <div class="table-responsive">
+                <table aria-label="Admins list">
+                    <thead>
+                        <tr>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Last Login</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-list"></tbody>
+                </table>
+            </div>
+        </section>
 
-    <!-- Admins Table -->
-    <div id="adminTab" class="tab-content">
-        <h3>Admins</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Last Login</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="admin-list">
-                <!-- Admin users will be dynamically loaded here -->
-            </tbody>
-        </table>
-    </div>
+        <section id="ownerTab" class="tab-content" role="tabpanel" hidden>
+            <h3>Owners</h3>
+            <div class="table-responsive">
+                <table aria-label="Owners list">
+                    <thead>
+                        <tr>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Last Login</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="owner-list"></tbody>
+                </table>
+            </div>
+        </section>
 
-    <!-- Owners Table -->
-    <div id="ownerTab" class="tab-content" style="display: none;">
-        <h3>Owners</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Last Login</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="owner-list">
-                <!-- Owner users will be dynamically loaded here -->
-            </tbody>
-        </table>
-    </div>
-    <div id="userTab" class="tab-content" style="display: none;">
-        <h3>Users</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Last Login</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="user-list">
-                <!-- Regular users will be dynamically loaded here -->
-            </tbody>
-        </table>
-    </div>
-</div>
+        <section id="userTab" class="tab-content" role="tabpanel" hidden>
+            <h3>Users</h3>
+            <div class="table-responsive">
+                <table aria-label="Users list">
+                    <thead>
+                        <tr>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Last Login</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-<script>
-    const apiUrl = window.location.origin;
-
-    async function fetchUsers() {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                alert('No authentication token found. Redirecting to login.');
-                window.location.href = '/login.html';
-                return;
-            }
-
-            // Decode token to get current user's role
-            const userInfo = decodeToken(token);
-            const isWebOwner = userInfo?.iswebowner;
-            const isAdmin = userInfo?.isAdmin;
-            console.log(userInfo);
-
-            const response = await fetch(`${apiUrl}/get-users`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    alert('Unauthorized. Redirecting to login.');
-                    window.location.href = '/login.html';
-                } else {
-                    throw new Error(`Error: ${response.statusText}`);
-                }
-            }
-
-            const users = await response.json();
-
-            // Filter users based on role
-            const owners = users.filter(user => user.isWebOwner);
-            const admins = users.filter(user => user.isAdmin && !user.iswebowner);
-            const regularUsers = users.filter(user => !user.isAdmin && !user.iswebowner);
-
-            renderUserList(admins, 'admin-list');
-            renderUserList(owners, 'owner-list');
-            renderUserList(regularUsers, 'user-list');
-        } catch (error) {
-            console.error('Error fetching users:', error);
-            alert('Failed to fetch users. Please try again later.');
-        }
-    }
-
-    function renderUserList(users, listId) {
-        const userList = document.getElementById(listId);
-        userList.innerHTML = ''; // Clear previous entries
-
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td>
-                    <select onchange="updateRole('${user._id}', this.value)">
-                        <option value="none" ${!user.isAdmin && !user.iswebowner ? 'selected' : ''}>None</option>
-                        <option value="admin" ${user.isAdmin && !user.iswebowner ? 'selected' : ''}>Admin</option>
-                        <option value="owner" ${user.iswebowner ? 'selected' : ''}>Owner</option>
-                    </select>
-                </td>
-                <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
-                <td>${new Date(user.createdAt).toLocaleString()}</td>
-                <td>
-                    <button class="btn" onclick="loginAsUser('${user._id}')">Login as User</button>
-                    <button class="btn btn-danger" onclick="deleteUser('${user._id}')">Delete</button>
-                </td>
-            `;
-            userList.appendChild(row);
-        });
-    }
-
-    async function updateRole(userId, role) {
-        try {
-            const token = localStorage.getItem('token');
-            const isAdmin = role === 'admin';
-            const isOwner = role === 'owner';
-
-            const response = await fetch(`${apiUrl}/update-role/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ isAdmin, isOwner }),
-            });
-
-            if (!response.ok) throw new Error('Failed to update role');
-
-            alert('User role updated successfully');
-            fetchUsers();
-        } catch (error) {
-            console.error('Error updating role:', error);
-            alert('Failed to update user role.');
-        }
-    }
-
-    async function deleteUser(userId) {
-        if (!confirm('Are you sure you want to delete this user?')) return;
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${apiUrl}/delete-user/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) throw new Error('Failed to delete user');
-
-            alert('User deleted successfully');
-            fetchUsers();
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            alert('Failed to delete user.');
-        }
-    }
-
-    function decodeToken(token) {
-        try {
-            const base64Payload = token.split('.')[1];
-            const payload = atob(base64Payload);
-            console.log(payload);
-            return JSON.parse(payload);
-        } catch (error) {
-            console.error('Error decoding token:', error);
-            return null;
-        }
-    }
-
-    async function loginAsUser(userId) {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${apiUrl}/generate-user-token`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ userId }),
-            });
-
-            if (!response.ok) throw new Error('Failed to generate user token');
-
-            const data = await response.json();
-            localStorage.setItem('token', data.token); // Replace admin token with user token
-            window.location.href = '/dashboard.html';
-        } catch (error) {
-            console.error('Error logging in as user:', error);
-            alert('Failed to log in as user.');
-        }
-    }
-
-    function switchTab(tabId) {
-        const tabs = document.querySelectorAll('.tab-content');
-        const links = document.querySelectorAll('.tab-link');
-
-        tabs.forEach(tab => (tab.style.display = 'none'));
-        links.forEach(link => link.classList.remove('active'));
-
-        document.getElementById(tabId).style.display = 'block';
-        document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
-    }
-
-    // Initialize the dashboard
-    fetchUsers();
-</script>
-
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/userManagement.js"></script>
+    <script src="js/tabs.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
