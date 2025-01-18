@@ -3,22 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="dashboard.css">
-
-
-
-
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
 
 <body>
   <div class="sidebar">
@@ -26,48 +16,30 @@
     <p id="user-info" style="margin: 10px 0; font-size: 1em;"></p>
     <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
     <button class="admin-btn" id="admin-btn" style="display: none;">View Users</button>
-    <button id="toggle-dark-mode">Toggle Dark Mode</button>
+    <button id="settings-btn">Settings</button>
     <button class="logout-btn" id="logout-btn">Logout</button>
-</div>
+  </div>
 
   <div class="main-content">
     <h1>Manage Pages</h1>
     <div id="page-list"></div>
   </div>
 
-  <div class="modal" id="editTextModal">
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
     <div class="modal-content">
-      <h3>Edit Page Content</h3>
-      <textarea id="text-content" placeholder="Type your content here..."></textarea>
+      <h3>Settings</h3>
+      <div>
+        <label for="dark-mode-toggle">Dark Mode:</label>
+        <input type="checkbox" id="dark-mode-toggle">
+      </div>
+      <!-- Add more settings options here -->
       <div style="text-align: right;">
-        <button class="save-btn" id="save-text-btn">Save Changes</button>
-        <button class="close-btn" id="close-modal-btn">Close</button>
+        <button class="close-btn" id="close-settings-btn">Close</button>
       </div>
     </div>
   </div>
 
-  <div class="modal" id="editTitleModal">
-    <div class="modal-content">
-      <h3>Edit Page Title</h3>
-      <input type="text" id="title-input" placeholder="Enter new title" />
-      <div style="text-align: right;">
-        <button class="save-btn" id="save-title-btn">Save Title</button>
-        <button class="close-btn" id="close-title-modal-btn">Close</button>
-      </div>
-    </div>
-  </div>
-  <div id="editPageModal" style="display: none;">
-    <div class="modal-content">
-      <h2>Edit Page</h2>
-      <label for="page-title-input">Title:</label>
-      <input type="text" id="page-title-input" />
-      <label for="page-content-textarea">Content:</label>
-      <textarea id="page-content-textarea"></textarea>
-      <button id="save-page-btn">Save</button>
-      <button id="close-page-modal-btn">Cancel</button>
-    </div>
-  </div>
-  
   <script>
     const apiUrl = window.location.origin;
     let currentPageId = null;
@@ -84,54 +56,51 @@
     }
 
     function displayUserInfo() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    console.log('No token found. Redirecting to login page.');
-    window.location.href = '/index.html';
-    return;
-  }
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token found. Redirecting to login page.');
+        window.location.href = '/index.html';
+        return;
+      }
 
-  const userInfo = decodeToken(token);
+      const userInfo = decodeToken(token);
 
+      if (userInfo) {
+        const userInfoElement = document.getElementById('user-info');
+        const role = userInfo.isOwner ? 'Owner' : (userInfo.isAdmin ? 'Admin' : 'User');
+        userInfoElement.textContent = `Logged in as: ${userInfo.username} (${role})`;
 
-
-  if (userInfo) {
-    const userInfoElement = document.getElementById('user-info');
-    const role = userInfo.isOwner ? 'Owner' : (userInfo.isAdmin ? 'Admin' : 'User');
-    userInfoElement.textContent = `Logged in as: ${userInfo.username} (${role})`;  
-
-    if (userInfo.isAdmin) {
-      const adminBtn = document.getElementById('admin-btn');
-      adminBtn.style.display = 'block';
-      adminBtn.addEventListener('click', async () => {
-        const token = localStorage.getItem('token');
-        try {
-          const response = await fetch(`${apiUrl}/get-users`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+        if (userInfo.isAdmin) {
+          const adminBtn = document.getElementById('admin-btn');
+          adminBtn.style.display = 'block';
+          adminBtn.addEventListener('click', async () => {
+            const token = localStorage.getItem('token');
+            try {
+              const response = await fetch(`${apiUrl}/get-users`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              if (response.ok) {
+                const users = await response.json();
+                console.log('Users:', users); // Handle the users' data here
+                window.location.href = `${window.location.origin}/admin/admindashbaord.html`;
+              } else {
+                const error = await response.json();
+                console.error('Error:', error.message);
+              }
+            } catch (err) {
+              console.error('Error fetching users:', err);
+            }
           });
-          if (response.ok) {
-            const users = await response.json();
-            console.log('Users:', users); // Handle the users' data here
-            window.location.href = `${window.location.origin}/admin/admindashbaord.html`;
-          } else {
-            const error = await response.json();
-            console.error('Error:', error.message);
-          }
-        } catch (err) {
-          console.error('Error fetching users:', err);
         }
-      });
+      } else {
+        console.log('Invalid token. Redirecting to login page.');
+        localStorage.removeItem('token');
+        window.location.href = '/index.html';
+      }
     }
-  } else {
-    console.log('Invalid token. Redirecting to login page.');
-    localStorage.removeItem('token');
-    window.location.href = '/index.html';
-  }
-}
-
 
     async function fetchPages() {
       const token = localStorage.getItem('token');
@@ -149,22 +118,21 @@
     }
 
     function renderPageList(pages) {
-  const pageListDiv = document.getElementById('page-list');
-  pageListDiv.innerHTML = '';
-  pages.forEach(page => {
-    const pageDiv = document.createElement('div');
-    pageDiv.className = 'page-card';
-    pageDiv.innerHTML = `
-      <div>${page.title}</div>
-      <div>
-        <button class="edit" onclick="openEditPageModal('${page._id}', '${page.title}', '${page.content}')">Edit</button>
-        <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
-      </div>
-    `;
-    pageListDiv.appendChild(pageDiv);
-  });
-}
-
+      const pageListDiv = document.getElementById('page-list');
+      pageListDiv.innerHTML = '';
+      pages.forEach(page => {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page-card';
+        pageDiv.innerHTML = `
+          <div>${page.title}</div>
+          <div>
+            <button class="edit" onclick="openEditPageModal('${page._id}', '${page.title}', '${page.content}')">Edit</button>
+            <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
+          </div>
+        `;
+        pageListDiv.appendChild(pageDiv);
+      });
+    }
 
     document.getElementById('add-page-btn').addEventListener('click', async () => {
       const token = localStorage.getItem('token');
@@ -310,63 +278,27 @@
       window.location.href = '/index.html';
     });
 
+    // Settings Modal Logic
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    settingsBtn.addEventListener('click', () => {
+      settingsModal.style.display = 'flex';
+    });
+
+    closeSettingsBtn.addEventListener('click', () => {
+      settingsModal.style.display = 'none';
+    });
+
+    darkModeToggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+    });
+
     // Initialize the dashboard
     displayUserInfo();
     fetchPages();
-    function openEditPageModal(pageId, title, content) {
-  currentPageId = pageId;
-
-  const modal = document.getElementById('editPageModal');
-  const titleInput = document.getElementById('page-title-input');
-  const contentTextarea = document.getElementById('page-content-textarea');
-
-  titleInput.value = title;
-  contentTextarea.value = content;
-
-  modal.style.display = 'flex';
-}
-
-document.getElementById('save-page-btn').addEventListener('click', async () => {
-  const token = localStorage.getItem('token');
-  const title = document.getElementById('page-title-input').value;
-  const content = document.getElementById('page-content-textarea').value;
-
-  try {
-    const response = await fetch(`${apiUrl}/update-page/${currentPageId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ title, content }),
-    });
-
-    if (response.ok) {
-      console.log('Page updated successfully.');
-      fetchPages();
-      closeEditPageModal();
-    } else {
-      const error = await response.json();
-      console.error('Error updating page:', error.message);
-    }
-  } catch (error) {
-    console.error('Error updating page:', error);
-  }
-});
-
-function closeEditPageModal() {
-  const modal = document.getElementById('editPageModal');
-  modal.style.display = 'none';
-}
-
-document.getElementById('close-page-modal-btn').addEventListener('click', closeEditPageModal);
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
-
-  toggleDarkModeButton.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-  });
-});
   </script>
 </body>
 
