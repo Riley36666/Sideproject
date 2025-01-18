@@ -257,23 +257,34 @@
 
     // Initialize the dashboard
     fetchUsers();
-    document.getElementById('kill-switch').addEventListener('click', () => {
-    // Log the action for debugging purposes
-    console.log('Kill switch activated. Taking the app offline.');
+    document.getElementById('kill-switch').addEventListener('click', async () => {
+    console.log('Kill switch activated. Sending shutdown request.');
 
-    // Clear sensitive data
-    localStorage.clear();
-    sessionStorage.clear();
+    try {
+        const token = localStorage.getItem('token'); // Ensure admin token is used
+        const response = await fetch(`${apiUrl}/shutdown`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
 
-    // Stop all active fetch requests (e.g., using AbortController)
-    if (window.activeAbortControllers) {
-        window.activeAbortControllers.forEach(controller => controller.abort());
+        if (response.ok) {
+            console.log('Server is shutting down.');
+            alert('The server has been taken offline.');
+            document.body.innerHTML = `<h1 style="color: red; text-align: center;">The application is offline.</h1>`;
+        } else {
+            alert('Failed to shut down the server.');
+        }
+    } catch (error) {
+        console.error('Error shutting down the server:', error);
+        alert('An error occurred while attempting to shut down the server.');
     }
-
-    // Disable all interactivity
-    document.body.innerHTML = `<h1 style="text-align:center; margin-top:20%; color:red;">The application has been taken offline.</h1>`;
-
 });
+
+
+
 
 
 

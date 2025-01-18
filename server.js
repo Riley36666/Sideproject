@@ -432,6 +432,15 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 });
+app.post('/shutdown', (req, res) => {
+  const authToken = req.headers['authorization'];
+  if (authToken !== 'Bearer <your-secret-token>') {
+      return res.status(403).send('Forbidden');
+  }
+  console.log('Shutdown initiated by admin.');
+  res.send('Server shutting down.');
+  process.exit(0); // Stops the Node.js process
+});
 
 // Start Server
 app.listen(port, () => console.log(`Server running on port ${port}`));
