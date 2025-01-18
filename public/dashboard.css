@@ -190,3 +190,18 @@ h1, h2, h3 {
 .modal-content button:hover {
   opacity: 0.9;
 }
+
+/* Settings Modal Specific Styles */
+#settingsModal .modal-content {
+  width: 300px;
+}
+
+#settingsModal label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+#settingsModal input[type="checkbox"] {
+  margin-right: 10px;
+}
