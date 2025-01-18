@@ -258,8 +258,23 @@
     // Initialize the dashboard
     fetchUsers();
     document.getElementById('kill-switch').addEventListener('click', () => {
-    throw new Error('Kill switch activated. Stopping execution.');
+    // Log the action for debugging purposes
+    console.log('Kill switch activated. Taking the app offline.');
+
+    // Clear sensitive data
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Stop all active fetch requests (e.g., using AbortController)
+    if (window.activeAbortControllers) {
+        window.activeAbortControllers.forEach(controller => controller.abort());
+    }
+
+    // Disable all interactivity
+    document.body.innerHTML = `<h1 style="text-align:center; margin-top:20%; color:red;">The application has been taken offline.</h1>`;
+
 });
+
 
 
 </script>
