@@ -286,31 +286,25 @@
     document.addEventListener('DOMContentLoaded', () => {
   const settingsBtn = document.getElementById('settings-btn');
   const settingsModal = document.getElementById('settingsModal');
-  const closeSettingsBtn = document.getElementById('close-settings-btn');
+  const closeSettingsBtn = document.getElementById('close-settings-btn'); 
 
   settingsBtn.addEventListener('click', () => {
-    console.log("Settings button clicked");  // Add a log here to see if it's triggered
-    settingsModal.style.display = 'flex'; // Open the modal
+    settingsModal.style.display = 'flex';
   });
-
-  closeSettingsBtn.addEventListener('click', () => {
-    console.log("Close button clicked");  // Add a log here to see if it's triggered
-    settingsModal.style.display = 'none'; // Close the modal
-  });
-});
-
-    settingsBtn.addEventListener('click', () => {
-      settingsModal.style.display = 'flex';
-    });
-
     closeSettingsBtn.addEventListener('click', () => {
-      settingsModal.style.display = 'none';
+    settingsModal.style.display = 'none';
     });
 
     darkModeToggle.addEventListener('change', () => {
-      document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+      const body = document.querySelector('body');
+      if (darkModeToggle.checked) {
+        body.classList.add('dark-mode');
+      } else {
+        body.classList.remove('dark-mode');
+      }
     });
-
+    });
+    
     // Initialize the dashboard
     displayUserInfo();
     fetchPages();

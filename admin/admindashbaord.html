@@ -21,6 +21,7 @@
         <button class="tab-link" onclick="switchTab('ownerTab')">Owners</button>
         <button class="tab-link active" onclick="switchTab('adminTab')">Admins</button>
         <button class="tab-link" onclick="switchTab('userTab')">Users</button> <!-- Add this line -->
+        <button class="kill-switch" id="kill-switch">Kill Switch</button>
     </div>
 
     <!-- Admins Table -->
@@ -255,6 +256,11 @@
 
     // Initialize the dashboard
     fetchUsers();
+    document.getElementById('kill-switch').addEventListener('click', () => {
+    throw new Error('Kill switch activated. Stopping execution.');
+});
+
+
 </script>
 
 </body>
