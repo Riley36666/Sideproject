@@ -99,6 +99,7 @@
             const isWebOwner = userInfo?.iswebowner;
             const isAdmin = userInfo?.isAdmin;
             console.log(userInfo);
+            console.log(fetchUsers("OWNER", isWebOwner))
 
             const response = await fetch(`${apiUrl}/get-users`, {
                 method: 'GET',
