@@ -1,10 +1,40 @@
+/* Define CSS Variables for Light Mode */
+:root {
+  --background-color: #ffffff;
+  --text-color: #2e2e2e;
+  --sidebar-background: #f7f7f7;
+  --sidebar-text-color: #2e2e2e;
+  --button-background: #e0e0e0;
+  --button-text-color: #2e2e2e;
+  --card-background: #ffffff;
+  --card-border-color: #e0e0e0;
+  --edit-button-background: #a0d468;
+  --close-button-background: #e74c3c;
+  --modal-background: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode Overrides */
+body.dark-mode {
+  --background-color: #2e2e2e;
+  --text-color: #ffffff;
+  --sidebar-background: #3e3e3e;
+  --sidebar-text-color: #ffffff;
+  --button-background: #4e4e4e;
+  --button-text-color: #ffffff;
+  --card-background: #3e3e3e;
+  --card-border-color: #5e5e5e;
+  --edit-button-background: #27ae60;
+  --close-button-background: #c0392b;
+  --modal-background: rgba(255, 255, 255, 0.5);
+}
+
 /* General Styles */
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
-  background: #ffffff;
-  color: #2e2e2e;
+  background: var(--background-color);
+  color: var(--text-color);
   display: flex;
   height: 100vh;
   overflow: hidden;
@@ -17,14 +47,14 @@ h1, h2, h3 {
 
 /* Sidebar */
 .sidebar {
-  background: #f7f7f7;
-  color: #2e2e2e;
+  background: var(--sidebar-background);
+  color: var(--sidebar-text-color);
   width: 250px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid var(--card-border-color);
 }
 
 .sidebar h2 {
@@ -37,8 +67,8 @@ h1, h2, h3 {
   padding: 10px;
   margin: 10px 0;
   border: none;
-  background: #e0e0e0;
-  color: #2e2e2e;
+  background: var(--button-background);
+  color: var(--button-text-color);
   font-size: 1em;
   cursor: pointer;
   border-radius: 3px;
@@ -74,9 +104,9 @@ h1, h2, h3 {
 
 /* Page Cards */
 .page-card {
-  background: #ffffff;
+  background: var(--card-background);
   padding: 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--card-border-color);
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex: 0 1 calc(33.333% - 20px);
@@ -90,8 +120,8 @@ h1, h2, h3 {
 }
 
 .page-card button {
-  background: #e0e0e0;
-  color: #2e2e2e;
+  background: var(--button-background);
+  color: var(--button-text-color);
   border: none;
   padding: 5px 10px;
   border-radius: 3px;
@@ -99,7 +129,7 @@ h1, h2, h3 {
 }
 
 .page-card button.edit {
-  background: #a0d468;
+  background: var(--edit-button-background);
 }
 
 .page-card button:hover {
@@ -114,13 +144,13 @@ h1, h2, h3 {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--modal-background);
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background: #ffffff;
+  background: var(--card-background);
   padding: 20px;
   border-radius: 6px;
   width: 400px;
@@ -136,7 +166,7 @@ h1, h2, h3 {
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--card-border-color);
   border-radius: 3px;
 }
 
@@ -148,13 +178,13 @@ h1, h2, h3 {
 }
 
 .modal-content button.save-btn {
-  background: #a0d468;
-  color: #ffffff;
+  background: var(--edit-button-background);
+  color: var(--text-color);
 }
 
 .modal-content button.close-btn {
-  background: #e74c3c;
-  color: #ffffff;
+  background: var(--close-button-background);
+  color: var(--text-color);
 }
 
 .modal-content button:hover {
