@@ -15,7 +15,7 @@ const axios = require('axios'); // Make sure to install this package
 const { userInfo } = require('os');
 // Initialize app
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 25565;
 const discordWebhookUrladmin = process.env.DISCORD_WEBHOOK_URL;
 const discordWebhookUrlowner = process.env.DISCORD_WEBHOOK_URL_owner;
 // Validate environment variables
@@ -168,6 +168,11 @@ app.post('/login', loginLimiter, async (req, res) => {
   }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 
 // Register Route
@@ -443,4 +448,6 @@ app.post('/shutdown', (req, res) => {
 });
 
 // Start Server
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+});
