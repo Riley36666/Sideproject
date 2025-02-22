@@ -2,34 +2,33 @@
 :root {
   --background-color: #ffffff;
   --text-color: #2e2e2e;
-  --sidebar-background: #f9f9f9;
+  --sidebar-background: #f7f7f7;
   --sidebar-text-color: #2e2e2e;
-  --button-background: #e8e8e8;
+  --button-background: #e0e0e0;
   --button-text-color: #2e2e2e;
   --card-background: #ffffff;
   --card-border-color: #e0e0e0;
-  --edit-button-background: #4caf50;
+  --edit-button-background: #a0d468;
   --close-button-background: #e74c3c;
   --modal-background: rgba(0, 0, 0, 0.5);
-  --transition-speed: 0.3s;
 }
 
 /* Dark Mode Overrides */
 body.dark-mode {
-  --background-color: #1e1e1e;
-  --text-color: #f5f5f5;
-  --sidebar-background: #2a2a2a;
+  --background-color: #2e2e2e;
+  --text-color: #ffffff;
+  --sidebar-background: #3e3e3e;
   --sidebar-text-color: #ffffff;
-  --button-background: #444;
+  --button-background: #4e4e4e;
   --button-text-color: #ffffff;
-  --card-background: #2a2a2a;
-  --card-border-color: #555;
-  --edit-button-background: #2ecc71;
-  --close-button-background: #e74c3c;
-  --modal-background: rgba(255, 255, 255, 0.15);
+  --card-background: #3e3e3e;
+  --card-border-color: #5e5e5e;
+  --edit-button-background: #27ae60;
+  --close-button-background: #c0392b;
+  --modal-background: rgba(255, 255, 255, 0.5);
 }
 
-/* Global Reset and Base Styles */
+/* General Styles */
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
@@ -39,7 +38,6 @@ body {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  transition: background var(--transition-speed), color var(--transition-speed);
 }
 
 h1, h2, h3 {
@@ -47,46 +45,43 @@ h1, h2, h3 {
   font-weight: 600;
 }
 
-button {
-  cursor: pointer;
-  transition: background var(--transition-speed), opacity var(--transition-speed);
-  outline: none;
-}
-
-button:focus-visible {
-  outline: 2px solid var(--edit-button-background);
-}
-
 /* Sidebar */
 .sidebar {
   background: var(--sidebar-background);
   color: var(--sidebar-text-color);
-  width: 280px;
-  padding: 24px;
+  width: 250px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: flex-start;
   border-right: 1px solid var(--card-border-color);
 }
 
 .sidebar h2 {
-  font-size: 1.5rem;
+  font-size: 1.25em;
+  margin-bottom: 20px;
 }
 
 .sidebar button {
-  padding: 12px 16px;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
   background: var(--button-background);
   color: var(--button-text-color);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 3px;
+  text-align: left;
 }
 
 .sidebar button:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: #d0d0d0;
+}
+
+#user-info {
+  margin: 20px 0;
+  font-size: 0.9em;
 }
 
 /* Main Content */
@@ -97,23 +92,24 @@ button:focus-visible {
 }
 
 .main-content h1 {
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
-  margin-bottom: 24px;
+  font-size: 1.75em;
+  margin-bottom: 20px;
 }
 
 #page-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
 /* Page Cards */
 .page-card {
   background: var(--card-background);
-  padding: 20px;
+  padding: 15px;
   border: 1px solid var(--card-border-color);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex: 0 1 calc(33.333% - 20px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -124,32 +120,30 @@ button:focus-visible {
 }
 
 .page-card button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
   background: var(--button-background);
   color: var(--button-text-color);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 .page-card button.edit {
   background: var(--edit-button-background);
-  color: white;
-}
-
-.page-card button.delete {
-  background: var(--close-button-background);
-  color: white;
 }
 
 .page-card button:hover {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* Modals */
 .modal {
   display: none;
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: var(--modal-background);
   justify-content: center;
   align-items: center;
@@ -157,52 +151,57 @@ button:focus-visible {
 
 .modal-content {
   background: var(--card-background);
-  padding: 32px;
-  border-radius: 12px;
-  width: min(400px, 90%);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 6px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modal-content h3 {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .modal-content input,
 .modal-content textarea {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 24px;
+  padding: 10px;
+  margin-bottom: 20px;
   border: 1px solid var(--card-border-color);
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 3px;
 }
 
 .modal-content button {
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 .modal-content button.save-btn {
   background: var(--edit-button-background);
-  color: white;
+  color: var(--text-color);
 }
 
 .modal-content button.close-btn {
   background: var(--close-button-background);
-  color: white;
+  color: var(--text-color);
+}
+
+.modal-content button:hover {
+  opacity: 0.9;
 }
 
 /* Settings Modal Specific Styles */
 #settingsModal .modal-content {
-  width: 320px;
+  width: 300px;
 }
 
 #settingsModal label {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-weight: 500;
 }
 
 #settingsModal input[type="checkbox"] {
-  margin-right: 8px;
+  margin-right: 10px;
 }
