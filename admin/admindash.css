@@ -1,94 +1,165 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #7eb3e9;
+    animation: fadeInBody 1s ease-in-out;
+}
+
+@keyframes fadeInBody {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 header {
-    background: #333;
+    background: linear-gradient(135deg, #007BFF, #0056b3);
     color: #fff;
-    padding: 10px 20px;
+    padding: 20px;
     text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    animation: slideDown 1s ease-in-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .container {
-    padding: 20px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
 }
 
 .tabs {
     display: flex;
-    margin-bottom: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .tab-link {
-    padding: 10px 15px;
-    margin-right: 5px;
-    background-color: #007BFF;
+    padding: 12px 20px;
+    margin: 0 5px;
+    background: linear-gradient(135deg, #007BFF, #0056b3);
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
     text-align: center;
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
 }
 
-.tab-link.active {
-    background-color: #0056b3;
+.tab-link.active, .tab-link:hover {
+    background: linear-gradient(135deg, #0056b3, #003f7f);
     font-weight: bold;
-}
-
-.tab-link:hover {
-    background-color: #0056b3;
+    transform: scale(1.1);
 }
 
 .tab-content {
     display: none;
+    padding: 20px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .tab-content.active {
     display: block;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Button Animations */
 .btn {
     display: inline-block;
-    margin: 5px;
-    padding: 8px 12px;
-    font-size: 14px;
+    margin: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
     color: #fff;
-    background-color: #28a745;
+    background: linear-gradient(135deg, #28a745, #1e7e34);
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    transform-origin: center;
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background: linear-gradient(135deg, #dc3545, #b21f2d);
 }
 
 .btn:hover {
-    opacity: 0.9;
+    opacity: 0.8;
+    transform: scale(1.1) rotate(2deg);
 }
 
+/* Table Animations */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: #fff;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 0.8s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 table th, table td {
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ddd;
     text-align: center;
 }
 
 table th {
-    background-color: #007BFF;
+    background: linear-gradient(135deg, #007BFF, #0056b3);
     color: #fff;
+    font-weight: bold;
 }
 
 select {
-    padding: 5px;
-    border-radius: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+select:hover {
+    transform: scale(1.05);
+}
+
+/* Image Animations */
+.image-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.image-container img {
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.image-container img:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
 }

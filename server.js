@@ -297,7 +297,7 @@ app.put('/update-role/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.get('/admin/admindashbaord.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin/admindashbaord.html'));
 });
