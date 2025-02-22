@@ -439,7 +439,8 @@ app.use((err, req, res, next) => {
 });
 app.post('/shutdown', (req, res) => {
   const authToken = req.headers['authorization'];
-  if (authToken !== 'Bearer <your-secret-token>') {
+  if (authToken !== 'Bearer my-secret-token') {
+
       return res.status(403).send('Forbidden');
   }
   console.log('Shutdown initiated by admin.');
