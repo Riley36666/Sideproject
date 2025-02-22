@@ -212,6 +212,41 @@
       displayUserInfo();
       fetchPages();
     });
+
+  // Open Edit Page Modal
+function openEditPage(pageId, title, content) {
+  const newTitle = prompt('Edit title:', title);
+  const newContent = prompt('Edit content:', content);
+  if (!newTitle || !newContent) return;
+
+  updatePage(pageId, newTitle, newContent);
+}
+
+// Update Page Function
+async function updatePage(pageId, title, content) {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (response.ok) {
+      console.log('Page updated successfully.');
+      fetchPages();
+    } else {
+      const error = await response.json();
+      console.error('Error updating page:', error.message);
+    }
+  } catch (error) {
+    console.error('Error updating page:', error);
+  }
+}
+
   </script>
 </body>
 
