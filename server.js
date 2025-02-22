@@ -218,7 +218,7 @@ app.get('/get-users', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const users = await User.find({}, 'username email isAdmin isOwner lastLogin createdAt');
+    const users = await User.find({}, 'username email isAdmin isOwner iswebowner lastLogin createdAt');
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
