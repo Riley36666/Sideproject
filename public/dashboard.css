@@ -1,36 +1,21 @@
 /* Define CSS Variables for Light Mode and Content Modal */
 :root {
-  --background-color: #ffffff;
-  --text-color: #2e2e2e;
-  --sidebar-background: #f7f7f7;
-  --sidebar-text-color: #2e2e2e;
-  --button-background: linear-gradient(135deg, #007BFF, #0056b3);
-  --button-text-color: #fff;
-  --card-background: #ffffff;
-  --card-border-color: #e0e0e0;
-  --edit-button-background: linear-gradient(135deg, #28a745, #1e7e34);
-  --close-button-background: linear-gradient(135deg, #dc3545, #b21f2d);
-  --modal-background: rgba(0, 0, 0, 0.5);
-}
-
-/* Dark Mode Overrides */
-body.dark-mode {
-  --background-color: #2e2e2e;
-  --text-color: #ffffff;
-  --sidebar-background: #3e3e3e;
-  --sidebar-text-color: #ffffff;
-  --button-background: linear-gradient(135deg, #4e4e4e, #2e2e2e);
-  --button-text-color: #ffffff;
-  --card-background: #3e3e3e;
-  --card-border-color: #5e5e5e;
-  --edit-button-background: linear-gradient(135deg, #27ae60, #1e7e34);
-  --close-button-background: linear-gradient(135deg, #c0392b, #b21f2d);
-  --modal-background: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
+  --background-color: #fefefe; /* Very light gray background */
+  --text-color: #1c1c1e; /* Dark gray text for contrast */
+  --sidebar-background: #ffffff; /* White sidebar */
+  --sidebar-text-color: #1c1c1e; /* Dark text in sidebar */
+  --button-background: #007aff; /* Soft blue for buttons */
+  --button-text-color: #ffffff; /* White text on buttons */
+  --card-background: #f0f0f0; /* Light gray card background */
+  --card-border-color: #d1d1d6; /* Light border for cards */
+  --edit-button-background: #4cd964; /* Green for edit button */
+  --close-button-background: #ff3b30; /* Red for close button */
+  --modal-background: rgba(0, 0, 0, 0.5); /* Modal background */
 }
 
 /* General Styles for Dashboard and Modals */
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif; /* Modern font */
   margin: 0;
   padding: 0;
   background: var(--background-color);
@@ -50,15 +35,17 @@ body {
   flex-direction: column;
   align-items: flex-start;
   border-right: 1px solid var(--card-border-color);
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar h2 {
-  font-size: 1.25em;
+  font-size: 1.5em;
   margin-bottom: 20px;
 }
 
-.sidebar button {
+/* Button Styles */
+.sidebar button,
+.main-content button {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
@@ -67,14 +54,14 @@ body {
   color: var(--button-text-color);
   font-size: 1em;
   cursor: pointer;
-  border-radius: 20px;
-  text-align: left;
-  transition: all 0.3s ease;
+  border-radius: 10px; /* Rounded edges */
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.sidebar button:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
+.sidebar button:hover,
+.main-content button:hover {
+  background: darken(var(--button-background), 10%);
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 /* Main Content */
@@ -85,7 +72,7 @@ body {
 }
 
 .main-content h1 {
-  font-size: 1.75em;
+  font-size: 2em;
   margin-bottom: 20px;
 }
 
@@ -100,7 +87,7 @@ body {
   background: var(--card-background);
   padding: 15px;
   border: 1px solid var(--card-border-color);
-  border-radius: 10px;
+  border-radius: 12px; /* Rounded corners */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   flex: 0 1 calc(33.333% - 20px);
   display: flex;
@@ -110,34 +97,12 @@ body {
 }
 
 .page-card:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px); /* Lift effect on hover */
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .page-card div:first-child {
   font-weight: 500;
-}
-
-.page-card button {
-  background: var(--button-background);
-  color: var(--button-text-color);
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.page-card button:hover {
-  transform: scale(1.1);
-}
-
-.page-card button.edit {
-  background: var(--edit-button-background);
-}
-
-.page-card button.close {
-  background: var(--close-button-background);
 }
 
 /* Modals and Content Modal */
@@ -155,10 +120,10 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.content-modal-content {
+.modal-content {
   background: var(--card-background);
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 12px; /* Rounded corners */
   width: 400px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   animation: slideIn 0.4s ease-out;
@@ -177,24 +142,6 @@ body {
   border-radius: 6px;
 }
 
-.modal-content button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: var(--edit-button-background);
-  color: #fff;
-}
-
-.modal-content button.close-btn {
-  background: var(--close-button-background);
-}
-
-.modal-content button:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
-}
-
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -204,4 +151,31 @@ body {
 @keyframes slideIn {
   from { transform: translateY(-30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column; /* Stack sidebar and main content */
+  }
+
+  .sidebar {
+    width: 100%; /* Full width on mobile */
+    border-right: none; /* Remove border */
+    border-bottom: 1px solid var(--card-border-color); /* Add bottom border */
+  }
+
+  .main-content {
+    padding: 20px; /* Reduce padding */
+  }
+
+  .page-card {
+    flex: 0 1 100%; /* Full width cards on mobile */
+  }
+
+  .sidebar button,
+  .main-content button {
+    padding: 15px; /* Increase button padding for touch */
+    font-size: 1.2em; /* Larger font size for buttons */
+  }
 }
