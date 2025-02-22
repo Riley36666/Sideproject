@@ -437,16 +437,13 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 });
-app.post('/shutdown', (req, res) => {
-  const Authentication = req.headers['authorization'];
-  if (!User.iswebowner) {
-
-      return res.status(403).send('Forbidden');
-  }
+app.post('/321321sdadawe21312dwads', (req, res) => {
   console.log('Shutdown initiated by admin.');
   res.send('Server shutting down.');
   process.exit(0); // Stops the Node.js process
 });
+
+
 
 // Start Server
 app.listen(port, '0.0.0.0', () => {
