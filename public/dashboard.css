@@ -1,4 +1,5 @@
-/* Define CSS Variables for Light Mode */
+/* Define CSS Variables for Light Mode and Content Modal */
+
 :root {
   --background-color: #ffffff;
   --text-color: #2e2e2e;
@@ -28,7 +29,8 @@ body.dark-mode {
   --modal-background: rgba(255, 255, 255, 0.5);
 }
 
-/* General Styles */
+/* General Styles for Dashboard and Modals */
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -140,7 +142,8 @@ body {
   background: var(--close-button-background);
 }
 
-/* Modals */
+/* Modals and Content Modal */
+
 .modal {
   display: none;
   position: fixed;
@@ -154,8 +157,8 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal-content {
-  background: var(--card-background);
+.content-modal-content {
+  background: rgba(255, 255, 255, 0.9);
   padding: 20px;
   border-radius: 10px;
   width: 400px;
@@ -199,13 +202,13 @@ body {
 }
 
 /* Settings Modal */
-#settingsModal .modal-content {
+#contentModal .content-modal-content {
   width: 300px;
 }
 
-#settingsModal label {
+#contentModal h3 {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   font-weight: 500;
 }
 
