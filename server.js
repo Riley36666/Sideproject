@@ -438,8 +438,8 @@ app.use((err, req, res, next) => {
   });
 });
 app.post('/shutdown', (req, res) => {
-  const authToken = req.headers['authorization'];
-  if (authToken !== 'Bearer my-secret-token') {
+  const Authentication = req.headers['authorization'];
+  if (!User.iswebowner) {
 
       return res.status(403).send('Forbidden');
   }
