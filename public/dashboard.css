@@ -1,5 +1,4 @@
 /* Define CSS Variables for Light Mode and Content Modal */
-
 :root {
   --background-color: #ffffff;
   --text-color: #2e2e2e;
@@ -26,40 +25,10 @@ body.dark-mode {
   --card-border-color: #5e5e5e;
   --edit-button-background: linear-gradient(135deg, #27ae60, #1e7e34);
   --close-button-background: linear-gradient(135deg, #c0392b, #b21f2d);
-  --modal-background: rgba(255, 255, 255, 0.5);
+  --modal-background: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
 }
 
 /* General Styles for Dashboard and Modals */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  max-width: 90%;
-}
-
-.modal-buttons {
-  margin-top: 10px;
-  text-align: right;
-}
-
-.modal-buttons button {
-  margin-left: 10px;
-}
-
-
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -172,7 +141,6 @@ body {
 }
 
 /* Modals and Content Modal */
-
 .modal {
   display: none;
   position: fixed;
@@ -181,13 +149,14 @@ body {
   width: 100vw;
   height: 100vh;
   background: var(--modal-background);
+  backdrop-filter: blur(5px);
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .content-modal-content {
-  background: rgba(255, 255, 255, 1);
+  background: var(--card-background);
   padding: 30px;
   border-radius: 10px;
   width: 400px;
@@ -213,36 +182,17 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-}
-
-.modal-content button.save-btn {
   background: var(--edit-button-background);
-  color: var(--text-color);
+  color: #fff;
 }
 
 .modal-content button.close-btn {
   background: var(--close-button-background);
-  color: var(--text-color);
 }
 
 .modal-content button:hover {
   opacity: 0.8;
   transform: scale(1.05);
-}
-
-/* Settings Modal */
-#contentModal .content-modal-content {
-  width: 300px;
-}
-
-#contentModal h3 {
-  display: block;
-  margin-bottom: 20px;
-  font-weight: 500;
-}
-
-#settingsModal input[type="checkbox"] {
-  margin-right: 10px;
 }
 
 /* Animations */
