@@ -17,7 +17,7 @@
     <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
     <button class="admin-btn" id="admin-btn" style="display: none;">View Users</button>
     <button id="settings-btn">Settings</button>
-    <button id="shutdown-btn">Shutdown Server</button>
+  
 
     <button class="logout-btn" id="logout-btn">Logout</button>
   </div>
@@ -258,37 +258,8 @@
         });
       }
 
-      // Shutdown Server
-      const shutdownBtn = document.getElementById('shutdown-btn');
-      if (shutdownBtn) {
-          shutdownBtn.addEventListener('click', async () => {
-              const token = localStorage.getItem('token');
-              if (!token) {
-                  console.log('No token found. Redirecting to login page.');
-                  window.location.href = '/index.html';
-                  return;
-              }
 
-              try {
-                  const response = await fetch(`${apiUrl}/shutdown`, {
-                      method: 'POST',
-                      headers: {
-                          'Authorization': `Bearer ${token}`,
-                      },
-                  });
-
-                  if (response.ok) {
-                      console.log('Server is shutting down.');
-                      alert('Server is shutting down.');
-                  } else {
-                      console.error('Error shutting down server:', await response.text());
-                      alert('Failed to shut down the server. Check your permissions.');
-                  }
-              } catch (error) {
-                  console.error('Error during shutdown request:', error);
-              }
-          });
-      }
+    
 
       const logoutBtn = document.getElementById('logout-btn');
       if (logoutBtn) {
