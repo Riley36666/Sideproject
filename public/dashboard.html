@@ -17,8 +17,6 @@
     <button class="add-page-btn" id="add-page-btn">+ Add New Page</button>
     <button class="admin-btn" id="admin-btn" style="display: none;">View Users</button>
     <button id="settings-btn">Settings</button>
-  
-
     <button class="logout-btn" id="logout-btn">Logout</button>
   </div>
 
@@ -32,11 +30,9 @@
     <div class="modal-content">
       <h3>Page Content</h3>
       <textarea id="content-display" rows="10" cols="30"></textarea>
-
       <div style="text-align: right;">
         <button class="save-btn" id="save-content-btn">Save</button>
         <button class="close-btn" id="close-content-btn">Close</button>
-
       </div>
     </div>
   </div>
@@ -102,7 +98,6 @@
         }
       }
 
-
       // Fetch and Render Pages
       async function fetchPages() {
         const token = localStorage.getItem('token');
@@ -164,7 +159,6 @@
         // Logic to save updated content goes here
         document.getElementById('contentModal').style.display = 'none';
       });
-
 
       // Close Content Modal
       document.getElementById('close-content-btn')?.addEventListener('click', () => {
@@ -268,9 +262,6 @@
           document.body.classList.toggle('dark-mode', darkModeToggle.checked);
         });
       }
-
-
-    
 
       const logoutBtn = document.getElementById('logout-btn');
       if (logoutBtn) {
