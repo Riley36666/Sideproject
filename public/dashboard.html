@@ -106,35 +106,28 @@
         const pageListDiv = document.getElementById('page-list');
         if (!pageListDiv) return;
         pageListDiv.innerHTML = '';
-
+  
         pages.forEach(page => {
           const pageDiv = document.createElement('div');
           pageDiv.className = 'page-card';
           pageDiv.innerHTML = `
             <div>${page.title}</div>
             <div>
-              <button class="view">View</button>
               <button class="edit">Edit</button>
               <button class="delete">Delete</button>
             </div>
           `;
           pageListDiv.appendChild(pageDiv);
-
-          pageDiv.querySelector('.view')?.addEventListener('click', () =>
-            viewPageContent(page.title, page.content)
+  
+          // Add event listeners safely
+          pageDiv.querySelector('.edit')?.addEventListener('click', () =>
+            openEditPageModal(page._id, page.title, page.content)
+          );
+          pageDiv.querySelector('.delete')?.addEventListener('click', () =>
+            deletePage(page._id)
           );
         });
       }
-
-      function viewPageContent(title, content) {
-        document.getElementById('viewPageTitle').textContent = title;
-        document.getElementById('viewPageContent').textContent = content;
-        document.getElementById('viewPageModal').style.display = 'flex';
-      }
-
-      document.getElementById('close-view-page-btn').addEventListener('click', () => {
-        document.getElementById('viewPageModal').style.display = 'none';
-      });
   
       // Add New Page
       const addPageBtn = document.getElementById('add-page-btn');
