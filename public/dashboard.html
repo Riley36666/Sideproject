@@ -135,18 +135,21 @@
     <div id="page-list"></div>
   </div>
 
-  <div class="modal" id="settingsModal">
+  <div class="modal" id="pageModal">
     <div class="modal-content">
-      <h3>Settings</h3>
-      <label for="dark-mode-toggle">Dark Mode:</label>
-      <input type="checkbox" id="dark-mode-toggle">
-      <button id="close-settings-btn">Close</button>
+      <h3 id="modal-title">Add Page</h3>
+      <input type="text" id="page-title" placeholder="Page Title">
+      <button id="save-page-btn">Save</button>
+      <button id="close-modal-btn">Close</button>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const apiUrl = window.location.origin;
+      const pageModal = document.getElementById('pageModal');
+      const pageTitleInput = document.getElementById('page-title');
+      let editingPageId = null;
 
       function decodeToken(token) {
         return JSON.parse(atob(token.split('.')[1]));
@@ -164,7 +167,7 @@
         }
       }
 
-      window.fetchPages = async function () {
+      async function fetchPages() {
         try {
           const response = await fetch(`${apiUrl}/get-pages`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -174,17 +177,24 @@
         } catch (error) {
           console.error('Error:', error);
         }
-      };
+      }
 
       function renderPageList(pages) {
         const pageList = document.getElementById('page-list');
         pageList.innerHTML = pages.map(page => `
           <div class="page-card">
             <div>${page.title}</div>
+            <button onclick="editPage('${page._id}', '${page.title}')">Edit</button>
             <button onclick="deletePage('${page._id}')">Delete</button>
           </div>
         `).join('');
       }
+
+      window.editPage = function (id, title) {
+        editingPageId = id;
+        pageTitleInput.value = title;
+        pageModal.style.display = 'flex';
+      };
 
       window.deletePage = async function (pageId) {
         if (confirm('Delete this page?')) {
@@ -200,6 +210,14 @@
         localStorage.removeItem('token');
         window.location.href = '/index.html';
       };
+
+      document.getElementById('add-page-btn').onclick = () => {
+        editingPageId = null;
+        pageTitleInput.value = '';
+        pageModal.style.display = 'flex';
+      };
+
+      document.getElementById('close-modal-btn').onclick = () => pageModal.style.display = 'none';
 
       displayUserInfo();
       fetchPages();
