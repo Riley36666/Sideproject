@@ -31,9 +31,12 @@
   <div class="modal" id="contentModal">
     <div class="modal-content">
       <h3>Page Content</h3>
-      <div id="content-display"></div>
+      <textarea id="content-display" rows="10" cols="30"></textarea>
+
       <div style="text-align: right;">
+        <button class="save-btn" id="save-content-btn">Save</button>
         <button class="close-btn" id="close-content-btn">Close</button>
+
       </div>
     </div>
   </div>
@@ -150,10 +153,18 @@
       function openContentModal(content) {
         const contentDisplay = document.getElementById('content-display');
         if (contentDisplay) {
-          contentDisplay.textContent = content;
+          contentDisplay.value = content; // Change to value for textarea
         }
         document.getElementById('contentModal').style.display = 'flex';
       }
+
+      // Save Content
+      document.getElementById('save-content-btn')?.addEventListener('click', () => {
+        const updatedContent = document.getElementById('content-display').value;
+        // Logic to save updated content goes here
+        document.getElementById('contentModal').style.display = 'none';
+      });
+
 
       // Close Content Modal
       document.getElementById('close-content-btn')?.addEventListener('click', () => {
