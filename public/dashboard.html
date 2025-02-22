@@ -27,7 +27,9 @@
 
   <!-- Content Modal -->
   <div class="modal" id="contentModal">
-    <div class="modal-content">
+    <div class="modal-content" style="width: 400px; margin: auto;">
+      <h3>Edit Page Title</h3>
+      <input type="text" id="title-input" placeholder="Enter title" />
       <h3>Page Content</h3>
       <textarea id="content-display" rows="10" cols="30"></textarea>
       <div style="text-align: right;">
@@ -36,6 +38,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
@@ -155,10 +158,12 @@
 
       // Save Content
       document.getElementById('save-content-btn')?.addEventListener('click', () => {
+        const updatedTitle = document.getElementById('title-input').value;
         const updatedContent = document.getElementById('content-display').value;
-        // Logic to save updated content goes here
+        // Logic to save updated title and content goes here
         document.getElementById('contentModal').style.display = 'none';
       });
+
 
       // Close Content Modal
       document.getElementById('close-content-btn')?.addEventListener('click', () => {
