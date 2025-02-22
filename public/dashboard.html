@@ -118,21 +118,27 @@
     }
 
     function renderPageList(pages) {
-      const pageListDiv = document.getElementById('page-list');
-      pageListDiv.innerHTML = '';
-      pages.forEach(page => {
-        const pageDiv = document.createElement('div');
-        pageDiv.className = 'page-card';
-        pageDiv.innerHTML = `
-          <div>${page.title}</div>
-          <div>
-            <button class="edit" onclick="openEditPageModal('${page._id}', '${page.title}', '${page.content}')">Edit</button>
-            <button class="delete" onclick="deletePage('${page._id}')">Delete</button>
-          </div>
-        `;
-        pageListDiv.appendChild(pageDiv);
-      });
-    }
+  const pageListDiv = document.getElementById('page-list');
+  pageListDiv.innerHTML = '';
+
+  pages.forEach(page => {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'page-card';
+    pageDiv.innerHTML = `
+      <div>${page.title}</div>
+      <div>
+        <button class="edit">Edit</button>
+        <button class="delete">Delete</button>
+      </div>
+    `;
+    pageListDiv.appendChild(pageDiv);
+
+    // Add event listeners
+    pageDiv.querySelector('.edit').addEventListener('click', () => openEditPageModal(page._id, page.title, page.content));
+    pageDiv.querySelector('.delete').addEventListener('click', () => deletePage(page._id));
+  });
+}
+
 
     document.getElementById('add-page-btn').addEventListener('click', async () => {
       const token = localStorage.getItem('token');
@@ -277,6 +283,39 @@
       localStorage.removeItem('token');
       window.location.href = '/index.html';
     });
+    function openEditPageModal(pageId, title, content) {
+  currentPageId = pageId;
+  const newTitle = prompt("Edit Page Title:", title);
+  const newContent = prompt("Edit Page Content:", content);
+
+  if (newTitle !== null && newContent !== null) {
+    updatePage(pageId, newTitle, newContent);
+  }
+}
+
+async function updatePage(pageId, title, content) {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(`${apiUrl}/update-page/${pageId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (response.ok) {
+      console.log('Page updated successfully.');
+      fetchPages();
+    } else {
+      const error = await response.json();
+      console.error('Error updating page:', error.message);
+    }
+  } catch (error) {
+    console.error('Error updating page:', error);
+  }
+}
 
     // Settings Modal Logic
     const settingsBtn = document.getElementById('settings-btn');
