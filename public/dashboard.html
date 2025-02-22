@@ -40,7 +40,6 @@
         <label for="dark-mode-toggle">Dark Mode:</label>
         <input type="checkbox" id="dark-mode-toggle">
       </div>
-      <!-- Add more settings options here -->
       <div style="text-align: right;">
         <button class="close-btn" id="close-settings-btn">Close</button>
       </div>
@@ -49,138 +48,143 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-  const apiUrl = window.location.origin;
-  let currentPageId = null;
+      const apiUrl = window.location.origin;
 
-  function decodeToken(token) {
-    try {
-      return JSON.parse(atob(token.split('.')[1]));
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return null;
-    }
-  }
+      function decodeToken(token) {
+        try {
+          return JSON.parse(atob(token.split('.')[1]));
+        } catch (error) {
+          console.error('Error decoding token:', error);
+          return null;
+        }
+      }
 
-  function displayUserInfo() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/index.html';
-      return;
-    }
-    
-    const userInfo = decodeToken(token);
-    if (!userInfo) {
-      localStorage.removeItem('token');
-      window.location.href = '/index.html';
-      return;
-    }
-    
-    const userInfoElement = document.getElementById('user-info');
-    if (userInfoElement) {
-      userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isOwner ? 'Owner' : userInfo.isAdmin ? 'Admin' : 'User'})`;
-    }
+      function displayUserInfo() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        const userInfo = decodeToken(token);
+        if (!userInfo) {
+          localStorage.removeItem('token');
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        const userInfoElement = document.getElementById('user-info');
+        if (userInfoElement) {
+          userInfoElement.textContent = `Logged in as: ${userInfo.username} (${userInfo.isOwner ? 'Owner' : userInfo.isAdmin ? 'Admin' : 'User'})`;
+        }
 
-    const adminBtn = document.getElementById('admin-btn');
-    if (userInfo.isAdmin && adminBtn) {
-      adminBtn.style.display = 'block';
-      adminBtn.addEventListener('click', () => {
-        window.location.href = `${window.location.origin}/admin/admindashboard.html`;
+        const adminBtn = document.getElementById('admin-btn');
+        if (userInfo.isAdmin && adminBtn) {
+          adminBtn.style.display = 'block';
+          adminBtn.addEventListener('click', () => {
+            window.location.href = `${apiUrl}/admin/admindashboard.html`;
+          });
+        }
+      }
+
+      async function fetchPages() {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch(`${apiUrl}/get-pages`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch pages');
+          }
+
+          const pages = await response.json();
+          renderPageList(pages);
+        } catch (error) {
+          console.error('Error fetching pages:', error);
+        }
+      }
+
+      function renderPageList(pages) {
+        const pageListDiv = document.getElementById('page-list');
+        if (!pageListDiv) return;
+        pageListDiv.innerHTML = '';
+
+        pages.forEach(page => {
+          const pageDiv = document.createElement('div');
+          pageDiv.className = 'page-card';
+          pageDiv.innerHTML = `
+            <div>${page.title}</div>
+            <div>
+              <button class="view">View</button>
+              <button class="edit">Edit</button>
+              <button class="delete">Delete</button>
+            </div>
+          `;
+          pageListDiv.appendChild(pageDiv);
+
+          const viewBtn = pageDiv.querySelector('.view');
+          if (viewBtn) {
+            viewBtn.addEventListener('click', () => viewPageContent(page.title, page.content));
+          }
+        });
+      }
+
+      function viewPageContent(title, content) {
+        const titleElem = document.getElementById('viewPageTitle');
+        const contentElem = document.getElementById('viewPageContent');
+        const modalElem = document.getElementById('viewPageModal');
+        
+        if (titleElem && contentElem && modalElem) {
+          titleElem.textContent = title;
+          contentElem.textContent = content;
+          modalElem.style.display = 'flex';
+        }
+      }
+
+      document.getElementById('close-view-page-btn')?.addEventListener('click', () => {
+        document.getElementById('viewPageModal')?.style.display = 'none';
       });
-    }
-  }
 
-  async function fetchPages() {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await fetch(`${apiUrl}/get-pages`, {
-        headers: { 'Authorization': `Bearer ${token}` },
+      document.getElementById('add-page-btn')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        const title = prompt('Enter a title for the new page:');
+        const content = prompt('Enter initial content for the new page:');
+        if (!title || !content) return;
+
+        try {
+          const response = await fetch(`${apiUrl}/add-page`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ title, content }),
+          });
+          if (response.ok) fetchPages();
+        } catch (error) {
+          console.error('Error adding new page:', error);
+        }
       });
-      const pages = await response.json();
-      renderPageList(pages);
-    } catch (error) {
-      console.error('Error fetching pages:', error);
-    }
-  }
 
-  function renderPageList(pages) {
-    const pageListDiv = document.getElementById('page-list');
-    if (!pageListDiv) return;
-    pageListDiv.innerHTML = '';
-    
-    pages.forEach(page => {
-      const pageDiv = document.createElement('div');
-      pageDiv.className = 'page-card';
-      pageDiv.innerHTML = `
-        <div>${page.title}</div>
-        <div>
-          <button class="view">View</button>
-          <button class="edit">Edit</button>
-          <button class="delete">Delete</button>
-        </div>
-      `;
-      pageListDiv.appendChild(pageDiv);
+      document.getElementById('settings-btn')?.addEventListener('click', () => {
+        document.getElementById('settingsModal')?.style.display = 'flex';
+      });
 
-      pageDiv.querySelector('.view')?.addEventListener('click', () => viewPageContent(page.title, page.content));
+      document.getElementById('close-settings-btn')?.addEventListener('click', () => {
+        document.getElementById('settingsModal')?.style.display = 'none';
+      });
+
+      document.getElementById('dark-mode-toggle')?.addEventListener('change', (event) => {
+        document.body.classList.toggle('dark-mode', event.target.checked);
+      });
+
+      document.getElementById('logout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/index.html';
+      });
+
+      displayUserInfo();
+      fetchPages();
     });
-  }
-
-  function viewPageContent(title, content) {
-    const titleElem = document.getElementById('viewPageTitle');
-    const contentElem = document.getElementById('viewPageContent');
-    const modalElem = document.getElementById('viewPageModal');
-    
-    if (titleElem && contentElem && modalElem) {
-      titleElem.textContent = title;
-      contentElem.textContent = content;
-      modalElem.style.display = 'flex';
-    }
-  }
-
-  document.getElementById('close-view-page-btn')?.addEventListener('click', () => {
-    document.getElementById('viewPageModal')?.style.display = 'none';
-  });
-
-  document.getElementById('add-page-btn')?.addEventListener('click', async () => {
-    const token = localStorage.getItem('token');
-    const title = prompt('Enter a title for the new page:');
-    const content = prompt('Enter initial content for the new page:');
-    if (!title || !content) return;
-
-    try {
-      const response = await fetch(`${apiUrl}/add-page`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ title, content }),
-      });
-      if (response.ok) fetchPages();
-    } catch (error) {
-      console.error('Error adding new page:', error);
-    }
-  });
-
-  document.getElementById('settings-btn')?.addEventListener('click', () => {
-    document.getElementById('settingsModal')?.style.display = 'flex';
-  });
-
-  document.getElementById('close-settings-btn')?.addEventListener('click', () => {
-    document.getElementById('settingsModal')?.style.display = 'none';
-  });
-
-  document.getElementById('dark-mode-toggle')?.addEventListener('change', (event) => {
-    document.body.classList.toggle('dark-mode', event.target.checked);
-  });
-
-  document.getElementById('logout-btn')?.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    window.location.href = '/index.html';
-  });
-
-  displayUserInfo();
-  fetchPages();
-});
-
   </script>
-  
 </body>
 
 </html>
