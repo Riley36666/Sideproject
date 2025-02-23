@@ -20,7 +20,8 @@
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "openai": "^4.85.4"
   },
   "description": ""
 }

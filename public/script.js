@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const pages = await response.json();
+      console.log("fetched pages:", pages);
       renderPageList(pages);
     } catch (error) {
       console.error('Error fetching pages:', error);
@@ -74,15 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
       pageDiv.innerHTML = `
         <div>${page.title}</div>
         <div>
-          <button class="view">View</button>
-          <button class="edit" style="display: none;">Edit</button>
-          <button class="delete">Delete</button>
+          <button class="view" style="background: var(--button-background); color: var(--button-text-color); border-radius: 8px; padding: 8px 12px; border: none; cursor: pointer;">View</button>
+          <button class="edit" style="display: none; background: var(--edit-button-background); color: #fff; border-radius: 8px; padding: 8px 12px; border: none; cursor: pointer;">Edit</button>
+          <button class="delete" style="background: var(--close-button-background); color: #fff; border-radius: 8px; padding: 8px 12px; border: none; cursor: pointer;">Delete</button>
         </div>
       `;
       pageListDiv.appendChild(pageDiv);
 
       // Add Event Listeners
       pageDiv.querySelector('.view')?.addEventListener('click', () => {
+        currentPageId = page._id;
         openContentModal(page.title, page.content);
       });
 
@@ -109,12 +111,19 @@ document.addEventListener('DOMContentLoaded', () => {
     contentModal.style.display = 'none';
   });
 
+  // Rewrite Content with AI
+
   // Save Content
   saveContentBtn.addEventListener('click', async () => {
     const updatedTitle = titleInput.value;
     const updatedContent = contentDisplay.value;
     
-    if (!currentPageId) return;
+    if (!currentPageId) {
+      console.error('No current page ID set. Cannot save content.');
+      return;
+    }
+
+    console.log('Saving content:', { updatedTitle, updatedContent, currentPageId });
 
     const token = localStorage.getItem('token');
     try {
@@ -207,7 +216,123 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = '/index.html';
   });
 
-  // Initialize Dashboard
+  // Command Handling
+  const commandInput = document.getElementById('command-input');
+  commandInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      handleCommand(commandInput.value);
+      commandInput.value = '';
+    }
+  });
+
+  // Command Examples
+  const commandExamples = {
+    new: "Create a new page. Usage: new <page_title>",
+    delete: "Delete a page by title. Usage: delete <page_title>",
+    list: "List all pages. Usage: list",
+    view: "View a specific page by title. Usage: view <page_title>",
+    edit: "Edit a specific page by title. Usage: edit <page_title>",
+  };
+
+  // Autocomplete Suggestions
+  const commandList = Object.keys(commandExamples);
+  const suggestionBox = document.createElement('div');
+  suggestionBox.className = 'suggestion-box';
+  commandInput.parentNode.appendChild(suggestionBox);
+  
+  commandInput.addEventListener('input', () => {
+    const input = commandInput.value.toLowerCase();
+    suggestionBox.innerHTML = '';
+    if (input) {
+      const suggestions = commandList.filter(command => command.startsWith(input));
+      suggestions.forEach(suggestion => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.textContent = suggestion;
+        suggestionItem.addEventListener('click', () => {
+          commandInput.value = suggestion;
+          suggestionBox.innerHTML = '';
+        });
+        suggestionBox.appendChild(suggestionItem);
+      });
+    }
+  });
+
+  commandInput.addEventListener('focus', () => {
+    suggestionBox.innerHTML = '';
+    Object.entries(commandExamples).forEach(([command, example]) => {
+      const exampleItem = document.createElement('div');
+      exampleItem.textContent = `${command}: ${example}`;
+      suggestionBox.appendChild(exampleItem);
+    });
+  });
+
+  commandInput.addEventListener('blur', () => {
+    suggestionBox.innerHTML = '';
+  });
+  
+  async function handleCommand(command) {
+    const [action, ...args] = command.split(' ');
+    switch (action.toLowerCase()) {
+      case 'new':
+        addNewPage(args.join(' '), true);
+        break;
+      case 'delete':
+        deletePageByTitle(args.join(' '), true);
+        break;
+      case 'list':
+        await listPages();
+        break;
+      case 'view':
+        const titleToView = args.join(' ');
+        await viewPage(titleToView);
+        break;
+      case 'edit':
+        const titleToEdit = args.join(' ');
+        await editPage(titleToEdit);
+        break;
+      default:
+        alert('Unknown command');
+    }
+  }
+
+  async function listPages() {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${apiUrl}/get-pages`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const pages = await response.json();
+    renderPageList(pages);
+  }
+
+  async function viewPage(title) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${apiUrl}/get-pages`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const pages = await response.json();
+    const pageToView = pages.find(page => page.title.toLowerCase() === title.toLowerCase());
+    if (pageToView) {
+      openContentModal(pageToView.title, pageToView.content);
+    } else {
+      alert('Page not found');
+    }
+  }
+
+  async function editPage(title) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${apiUrl}/get-pages`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const pages = await response.json();
+    const pageToEdit = pages.find(page => page.title.toLowerCase() === title.toLowerCase());
+    if (pageToEdit) {
+      currentPageId = pageToEdit._id;
+      openContentModal(pageToEdit.title, pageToEdit.content);
+    } else {
+      alert('Page not found');
+    }
+  }
+
   displayUserInfo();
   fetchPages();
 });
