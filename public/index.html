@@ -133,7 +133,7 @@
         if (response.ok) {
           if (formType === 'login') {
             localStorage.setItem('token', data.token); // Save token
-            window.location.href = '/dashboard.html'; // Redirect after successful login
+            window.location.href = '/dashboard'; // Redirect after successful login
           } else if (formType === 'register') {
             showLogin(); // Switch to login form after successful registration
           } else if (formType === 'reset') {

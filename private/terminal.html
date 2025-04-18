@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Terminal</title>
+  <link rel="stylesheet" href="private/terminal.css" />
+  <style>
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: monospace;
+    }
+
+    #login-screen input {
+      margin: 5px;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    #login-screen button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #terminal-ui {
+      display: none;
+    }
+
+    #terminal {
+      padding: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      height: 80vh;
+      background-color: black;
+      color: lime;
+    }
+
+    #input-line {
+      display: flex;
+      align-items: center;
+      font-family: monospace;
+      background-color: black;
+      color: lime;
+    }
+
+    #command {
+      background: black;
+      color: lime;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 1em;
+      flex-grow: 1;
+    }
+
+    .blinking-cursor {
+      display: inline-block;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      from, to { color: transparent }
+      50% { color: lime; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <h2>Login to access terminal</h2>
+    <input type="text" id="login-username" placeholder="Username" />
+    <input type="password" id="login-password" placeholder="Password" />
+    <button id="login-btn">Login</button>
+    <div id="login-error" style="color:red; margin-top: 10px;"></div>
+  </div>
+
+  <!-- Terminal UI (hidden until login) -->
+  <div id="terminal-ui">
+    <div id="terminal"></div>
+    <div id="input-line">
+      <span id="prompt">knowles@webterm:~$</span>
+      <input type="text" id="command" autocomplete="off" />
+    </div>
+  </div>
+
+  <script src="private/terminal.js"></script>
+</body>
+</html>

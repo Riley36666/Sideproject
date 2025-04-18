@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userInfo.isAdmin && adminBtn) {
         adminBtn.style.display = 'block';
         adminBtn.addEventListener('click', () => {
-          window.location.href = `${window.location.origin}/admin/admindashbaord.html`;
+          window.location.href = "/admindashboard";
         });
       }
     } else {

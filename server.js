@@ -272,7 +272,9 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
 // Update Page Route
 app.put('/update-role/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
@@ -298,7 +300,7 @@ app.put('/update-role/:id', authenticateToken, async (req, res) => {
   }
 });
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
-app.get('/admin/admindashbaord.html', (req, res) => {
+app.get('/admindashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin/admindashbaord.html'));
 });
 
@@ -441,6 +443,102 @@ app.post('/321321sdadawe21312dwads', (req, res) => {
   console.log('Shutdown initiated by admin.');
   res.send('Server shutting down.');
   process.exit(0); // Stops the Node.js process
+});
+
+app.use('/private', express.static(__dirname + '/private'));
+
+// Terminal Routes (dont touch)
+app.get("/terminal", (req, res) => {
+  console.log("Terminal route hit!");
+  res.sendFile(path.join(__dirname, "private", "terminal.html"));
+});
+app.post("/autocomplete", (req, res) => {
+  const { command } = req.body;
+  const fs = require('fs');
+  const path = require('path');
+
+  // Split into command and argument
+  const parts = command.trim().split(/\s+/);
+  const cmd = parts[0];
+  const arg = parts[1] || "";
+
+  if (cmd === "cd") {
+    try {
+      const entries = fs.readdirSync(currentDirectory, { withFileTypes: true });
+
+      const dirs = entries
+        .filter(dirent => dirent.isDirectory() && dirent.name.startsWith(arg))
+        .map(dirent => dirent.name);
+
+      return res.json({ suggestions: dirs });
+    } catch (err) {
+      return res.status(500).json({ suggestions: [], error: "Failed to read directory" });
+    }
+  }
+
+  // Default: fallback to shell command autocomplete for normal commands
+  const lastWord = command.split(" ").pop();
+  const shellCmd = `bash -c 'compgen -c -- ${lastWord}'`;
+
+  exec(shellCmd, (err, stdout, stderr) => {
+    if (err || stderr) {
+      return res.send(command); // Return original on error
+    }
+
+    const suggestions = stdout.split("\n").filter(Boolean);
+
+    if (suggestions.length === 1) {
+      const updatedCommand = command.replace(new RegExp(`${lastWord}$`), suggestions[0]);
+      return res.send(updatedCommand);
+    } else if (suggestions.length > 1) {
+      return res.json({ suggestions, partial: command });
+    }
+
+    res.send(command);
+  });
+});
+
+
+app.post("/execute", (req, res) => {
+  const { command } = req.body;
+
+  // Handle 'cd' manually
+  if (command.startsWith('cd ')) {
+    const target = command.split('cd ')[1].trim();
+
+    // Resolve path
+    const path = require('path');
+    const newPath = path.resolve(currentDirectory, target);
+
+    const fs = require('fs');
+    if (fs.existsSync(newPath) && fs.statSync(newPath).isDirectory()) {
+      currentDirectory = newPath;
+      return res.send(`Changed directory to ${currentDirectory}`);
+    } else {
+      return res.send(`No such directory: ${target}`);
+    }
+  }
+
+  // Otherwise, run the command in the currentDirectory
+  exec(command, { cwd: currentDirectory }, (error, stdout, stderr) => {
+    if (error) return res.send(`Error: ${stderr}`);
+    res.send(stdout);
+  });
+});
+app.post("/termlogin", (req, res) => {
+  const { username, password } = req.body;
+
+  console.log("Login attempt:", username, password);
+  console.log("Expected from env:", process.env.USERNAME, process.env.PASSWORD);
+
+  if (
+    username === process.env.USERNAME &&
+    password === process.env.PASSWORD
+  ) {
+    return res.json({ success: true });
+  }
+
+  res.status(401).json({ success: false });
 });
 
 

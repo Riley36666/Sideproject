@@ -1,0 +1,149 @@
+/* Global Styles */
+body {
+  margin: 0;
+  background: radial-gradient(circle at top left, #1a1a40, #0f0f2f);
+  color: #e0e0ff;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Terminal Window */
+#terminal {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: transparent;
+  color: #f5f5ff;
+  scroll-behavior: smooth;
+  text-shadow: 0 0 2px #00f7ff;
+}
+
+/* Glowing Scrollbar */
+#terminal::-webkit-scrollbar {
+  width: 10px;
+}
+#terminal::-webkit-scrollbar-thumb {
+  background: #00f7ff;
+  border-radius: 10px;
+}
+#terminal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Input Line */
+#input-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #151527;
+  box-shadow: 0 -2px 8px rgba(0, 247, 255, 0.2);
+}
+
+/* Prompt Text */
+#prompt {
+  color: #00f7ff;
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+/* Command Input */
+#command {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  flex: 1;
+  font-family: inherit;
+  font-size: 1rem;
+  caret-color: #00f7ff;
+  padding: 4px 0;
+  transition: all 0.2s ease-in-out;
+}
+
+#command:focus {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+/* Placeholder Style */
+#command::placeholder {
+  color: #7a7aa2;
+  opacity: 0.5;
+}
+
+/* Text Selection */
+::selection {
+  background: #00f7ff;
+  color: #1a1a40;
+}
+.terminal-line {
+  white-space: pre-wrap;
+  color: #add8ff;
+  text-shadow: 0 0 3px #00f7ff;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Fade effect when line starts */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.blinking-cursor {
+  display: inline-block;
+  margin-left: 4px;
+  color: #7aa2f7;
+  animation: blink 1s step-start infinite;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+body {
+  background: linear-gradient(-45deg, #1e3a8a, #3b82f6, #60a5fa, #1e40af);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
+  color: #cdd6f4;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+  animation: starScroll 60s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+@keyframes starScroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 1000px 1000px;
+  }
+}
