@@ -245,10 +245,12 @@ app.get('/get-pages', authenticateToken, async (req, res) => {
   }
 });
 // Update Page Route
+// Route to update the page
 app.put('/update-page/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content } = req.body;  // Expecting both title and content
 
+  // Validate input data
   if (!title || !content) {
     return res.status(400).json({ message: 'Title and content are required' });
   }
@@ -265,13 +267,15 @@ app.put('/update-page/:id', authenticateToken, async (req, res) => {
     page.title = title;
     page.content = content;
 
-    await page.save();
+    await page.save();  // Save the updated page
 
     res.status(200).json({ message: 'Page updated successfully', page });
   } catch (error) {
+    console.error(error); // Log any error to server logs for debugging
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });

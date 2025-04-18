@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,31 +7,53 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
+  <style>
+    /* Add any additional styling here if necessary */
+    .notion-style-editor {
+      border: 1px solid #ddd;
+      padding: 15px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      min-height: 400px;
+      overflow-y: auto;
+    }
+    .page-card {
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    #page-editor {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
   <div class="sidebar">
     <h2>Dashboard</h2>
     <p id="user-info" style="margin: 10px 0; font-size: 1em;"></p>
-    <button class="add-page-btn" id="add-page-btn" style="background: var(--button-background); color: var(--button-text-color); border-radius: 20px; padding: 10px; border: none; cursor: pointer;">+ Add New Page</button>
+    <button class="add-page-btn" id="add-page-btn" style="background: #007bff; color: white; border-radius: 20px; padding: 10px; border: none; cursor: pointer;">+ Add New Page</button>
     <button class="admin-btn" id="admin-btn" style="display: none;">View Users</button>
     <button id="settings-btn">Settings</button>
-    <button class="logout-btn" id="logout-btn" style="background: var(--button-background); color: var(--button-text-color); border-radius: 20px; padding: 10px; border: none; cursor: pointer;">Logout</button>
+    <button class="logout-btn" id="logout-btn" style="background: #007bff; color: white; border-radius: 20px; padding: 10px; border: none; cursor: pointer;">Logout</button>
   </div>
 
-  <div class="command-input" style="width: 300px;">
-    <input type="text" id="command-input" placeholder="Type a command..." style="height: 20px;" />
-  </div>
+  <!-- Full-page editor section -->
   <div class="main-content">
-    <div class="command-usage" style="margin-top: 5px; font-size: 1em; color: #555;">
-      Usage: Type a command and press Enter. Available commands: new, delete.
+    <div id="page-editor" class="page-editor" style="display: none;">
+      <button id="back-to-list-btn" style="background: #ddd; padding: 8px; border-radius: 5px; cursor: pointer;">Back to Pages</button>
+      <div id="editor" contenteditable="true" class="notion-style-editor" style="min-height: 400px; margin-top: 20px;"></div>
     </div>
-    <div class="command-examples" style="margin-top: 10px;"></div>
-    <h1 style="color: #007BFF;">Manage Pages</h1>
-    <div id="page-list" style="display: flex; flex-wrap: wrap; gap: 20px;"></div>
+
+    <div id="page-list" class="page-list" style="display: block;">
+      <h1>Manage Pages</h1>
+      <!-- Page cards will be dynamically inserted here -->
+    </div>
   </div>
 
-<!-- Content Modal -->
+  <!-- Content Modal -->
+  <!-- Content Modal -->
 <div id="contentModal" class="modal">
   <div class="modal-content">
     <h3>Edit Page</h3>
@@ -49,6 +70,7 @@
   </div>
 </div>
 
+
   <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
     <div class="modal-content">
@@ -58,16 +80,11 @@
         <input type="checkbox" id="dark-mode-toggle">
       </div>
       <div style="text-align: right;">
-        <button class="close-btn" id="close-settings-btn" style="background: var(--close-button-background); color: #fff; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+        <button class="close-btn" id="close-settings-btn" style="background: #ff3b3f; color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer;">Close</button>
       </div>
     </div>
   </div>
 
-
-  
-
-
   <script src="script.js"></script>
-
 </body>
 </html>
